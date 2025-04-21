@@ -3,25 +3,46 @@
 > 【English|[中文](./README.cn.md)】
 ---
 
-Programmable Prompt Engineering (PPE) language is a simple and natural scripting language designed for handling prompt information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand. [This specification](https://github.com/offline-ai/ppe) is implemented in the [offline-ai/cli](https://github.com/offline-ai/cli) project.
+Programmable Prompt Engineering language is a simple and natural scripting language designed for handling prompt information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand. [This specification](https://github.com/offline-ai/ppe) is implemented in the [offline-ai/cli](https://github.com/offline-ai/cli) project.
 
 - **Promote Reusability and Programmability**: Facilitate the creation of prompts that are modular, reusable, and programmable, akin to software engineering practices.
 - **Simplify Prompt Management**: Standardize the construction of prompt engineering projects for better organization and ease of use.
 - **Enhance Script Compatibility**: Design prompts that are agnostic to specific LLMs, ensuring they can be used across various models.
 - **User-Friendly Design**: Enable application developers to use prompt engineering projects as they would any other code library, without requiring deep knowledge of AI internals.
 - **Evolve the Role of Prompt Engineers**: Shift the focus of prompt engineers towards developing versatile, model-agnostic scripts to foster wider adoption and innovation.
-- Prompt Layer Structure: Clearly defined and customizable prompt type
-  * Function Prompt: `lib` type, each PPE prompt file acts as a function, available for other prompts or code to call, for example, text file read `file()`, fetch URL `url()` are all function prompts
+- AI Language Layer Structure: Clearly defined and customizable prompt type
+  * Function: `lib` type, each AI file acts as a function, available for other prompts or code to call, for example, text file read `file()`, fetch URL `url()` are all function prompts
     * This allows referencing in messages with `@a specific prompt`, used to call a particular input/output agreed prompt function, such as `@file(...)`, `@url(https://...)`
-  * Class Prompt: Each PPE prompt file acts as an inheritable class, overriding configurations and code inheritance
+  * Class: Each AI file acts as an inheritable class, overriding configurations and code inheritance
     * Type: `type` type, used for customizing prompt scripts of specific types
     * You can also use prompts to define other types
     * Character: Character type, prompt scripts with specific role positioning, "character type" itself is also a prompt script
-  * Application Prompt: Composed of several prompt files under a directory, the main entry prompt file's basename is the same as the directory name, for example, `guide`
+  * Application: Consists of multiple AI files within a directory, with the main entry AI file's `basename` matching the directory name. For example, the main entry AI file for the `guide` directory is named `guide.ai.yaml`.
 
 ## Quick Start
 
 Welcome to the streamlined guide for getting started quickly with your AI-powered scripting experience. This guide focuses on making the process of creating and executing interactive scripts more intuitive and straightforward. Let's dive in!
+
+### Reasons for Being Based on YAML
+
+* **Close to Natural Language, Easy for AI to Understand**
+  * The design of YAML syntax closely resembles natural language, reducing the cognitive load on AI when interpreting prompts.
+  * By basing our system on YAML, AI models can more intuitively grasp the meaning of prompts without being confused by overly complex structures.
+* **Clear Semantic Structure Enhances AI Processing Efficiency**
+  * YAML’s hierarchical structure and indentation clearly define relationships between data elements, enabling AI to quickly locate key information.
+  * This structural clarity ensures that AI generates responses or performs tasks more accurately, avoiding unnecessary contextual ambiguity.
+* **The Best Bridge for Human-Machine Collaboration**
+  * For humans, YAML is simple to read and write; for AI, its logical and clear semantics make it an ideal intermediate format.
+  * In prompt engineering, this dual-friendly nature significantly enhances the smoothness and effectiveness of human-AI interaction.
+* **Flexibility and Extensibility**
+  * YAML supports custom tags and allows for flexible adjustments to content based on specific needs.
+  * While rooted in YAML, our system introduces slight modifications to better suit advanced AI workflows.
+* **Built on YAML’s Mature Ecosystem**
+  * By basing our system on YAML, we leverage its widespread adoption and mature toolchain, eliminating the need for additional parsing mechanisms.
+* **Lowers Development Barriers, Focuses on Core AI Functionality**
+  * Building on YAML avoids the complexity of designing a new language from scratch, allowing developers to concentrate on refining AI logic rather than dealing with formatting challenges.
+  * AI benefits directly from YAML’s structured nature, extracting essential information efficiently while maintaining compatibility with existing tools.
+
 
 ### Structuring Dialogue
 
@@ -580,25 +601,46 @@ system: |-
 
 With these simple settings, one script can inherit code and configurations from another script.
 
-### Autonomous Invocation and Permission Control of Intelligent Agents(Tools)
+### Autonomous Invocation and Permission Control for Intelligent Agents(Tools)
 
 Universal autonomous invocation of intelligent agents based on natural language (no specialized model training for `tools` required, the only requirement is strong instruction-following capability).
 
 #### Tool Configuration
 
-By setting the allowed `tools` in the script configuration, these `tools` correspond to PPE script IDs, and the intelligent agent will autonomously invoke these `tools` when needed to complete tasks. Example configuration:
+Simply configure the tools that the intelligent agent is allowed to use in the script configuration under tools. These tools correspond to AI script IDs, and the intelligent agent will autonomously invoke these tools to complete tasks when necessary. The tools configuration supports two formats: `array` or `object`.
+
+Array example configuration:
 
 ```yaml
 ---
 tools:
   - weather
   - search
-  - now
+  - id: now
+    # Override the default title information
+    title: Get the current time in ISO 8601 format
 ---
-user: 现在几点了？今天上海的天气如何？
+user: What time is it now? How's the weather in Shanghai today?
 # The intelligent agent will call the corresponding tools based on the configured tools: now, weather, and return the results.
 assistant: "[[Answer]]"
 ```
+
+Object example configuration:
+
+```yaml
+---
+tools:
+  # Using object format makes it easier to override default descriptions
+  weather:
+    title: get weather information
+  search:
+    title: search in search engine
+  now:
+    title: Get the current time in ISO 8601 format
+---
+```
+
+Example of a specific tool script:
 
 ```yaml
 # weather.ai.yaml
@@ -606,11 +648,11 @@ assistant: "[[Answer]]"
 title: get weather information
 input:
   - location:
-      description: contain city, province(if any) and country
+      description: Include city, province(if any) and country
       example: city,province,country
       required: true
   - date:
-      description: the weather information of the specified date
+      description: Weather information for the specified date
       example: 2025-02-04T18:07:42+08:00
       default: today
 ---
@@ -620,7 +662,7 @@ $echo: "The weather in Shanghai is overcast turning partly cloudy, with a temper
 
 Note：
 
-* This specification uses the `title` configuration in the PPE script as a brief description for invoking the tool, and the `input` configuration serves as parameter descriptions.
+* This specification uses the `title` configuration in the AI script as a brief description for invoking the tool, and the `input` configuration serves as parameter descriptions.
 * If the user or parent script disables the tools used by this script, using this script will trigger an exception error `MethodNotAllowed`: `permission denied`.
 
 #### Permission Control
@@ -779,7 +821,7 @@ import: # Object Format
 
 **Note**:
 
-* Currently, only `javascript`, `wasm` and `PPE AI` script support have been implemented.
+* Currently, only `javascript`, `wasm` and `AI` script support have been implemented.
 * **BROKEN CHANGE**: ~~the default is js module if not extension name provided.~~ use the prefix `js:` to specify the js module name. For example, `js:js_package_name`.
 * The relative path is the folder of the current ai script, not the CWD(current working dir)
 * When importing, a "$" prefix will be automatically added to names without a prefix.
@@ -794,7 +836,8 @@ import: # Object Format
     * Example: `ai:package_name#./some.ai.js`
     * If you want the entry script of the package to be executed during initialization, ensure that `some.ai.js` is exported via the entry script:
       * Example: `ai:package_name: ['some']`
-* Default PPE script imports will include the `$[PPE_ID](data)` function for executing PPE scripts; the `$[PPE_ID].interact({message})` function for script interaction; and items exported via the `export` configuration in the PPE script.
+* By default, importing an AI script will at least import the `$[AI_ID](data)` function object, which is used to execute the AI script itself. On this function object, there is also the `$[AI_ID].interact({message})` AI interaction function; as well as the items exported via the `export` configuration in the AI script.
+* Added the `ai:` prefix convention, indicating the import of a AI script package or directory. The script package can include AI scripts, `.ai.js` files, and `.ai.wasm` files. For example, `ai:package_path#id.ai.yaml`, `ai:package_path#./some.ai.js`.
 
 ##### Export
 
@@ -822,6 +865,22 @@ Note:
 
 * When the script contains an `export`, the script itself will be executed as an initialization function (`$initializeModule`) upon import by default, unless there is a `$initializeModule` item in the script:
   * Setting `$initializeModule` to `false` will prevent the execution of the initialization function, or decalare the `$initializeModule` initialization directive by yourself.
+
+###### Module Initialization Method `$initializeModule`
+
+The this passed to `$initializeModule` refers to different object depending on the context:
+
+* If the `$initializeModule` function is **from a JavaScript (JS) script**, the `this` will refer to the `caller` object (ensuring compatibility with JS behavior).
+* If the `$initializeModule` function is **from an AI script**, the `this` will refer to the AI script itself, treating the script as an independent object.
+
+The Arguments for `$initializeModule` include:
+
+* `data`: This is the `data` object passed to the `caller`, or the default `data` object of the `caller` if no specific data is provided.
+* `caller`: This represents the caller object itself.
+
+Notes:
+
+* There’s a configuration option in the AI script called `runSelfBeforeInitModule`, which determines whether the AI script should execute itself before running `$initializeModule`. By default, this is set to `false`.
 
 #### Prompt configuration
 
@@ -889,7 +948,9 @@ $on:
     * `depth`: Maximum depth of thinking (optional).
     * `steps`: Maximum number of thinking steps (optional).
     * `thinkTag`: Tag for thought content. Used to mark text in the thinking process (optional).
+      * Only available for the `first` and `deep` mode.
     * `answerTag`: Tag for answer content. Used to mark the final answer text (optional).
+      * Only available for the `first` and `deep` mode.
 * **Purpose**:
   * Control the AI's thinking behavior when processing requests to adapt to different application scenarios and needs.
   * Provide flexible configuration options so developers can adjust AI behavior according to specific requirements.
