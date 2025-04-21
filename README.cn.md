@@ -943,9 +943,11 @@ $on:
     * `thinkTag: string | [string, string]`: 思考内容的标签。用于标记思考过程中的文本。(可选)
       * 仅在`first`,`deep`模式下有效。
       * 如果是数组，则表示开始和结束的标签。
+      * 如果没有配置，则默认为标签为“Think”
     * `answerTag: string | [string, string]`: 回答内容的标签。用于标记最终的回答文本。(可选)
       * 仅在`first`,`deep`模式下有效。
       * 如果是数组，则表示开始和结束的标签。
+      * 如果没有配置，则默认为标签为“Answer”
     * `thinkRegex`: 用于分析AI的返回内容的正则表达式，仅限thinkTag为字符串时有效。(可选)
     * `answerRegex`: 用于分析AI的返回内容的正则表达式，仅限answerTag为字符串时有效。(可选)
 * **目的**:
