@@ -82,9 +82,9 @@ assistant: "[[result]]"   # Executes the AI, replace the result which return by 
 The result:
 
 ```bash
-$ai run -f test.ai.yaml --no-stream
+$ai run test.ai.yaml --no-stream
 # Or search the script id in current directory
-# $ai run -f test --no-stream -s .
+# $ai run test --no-stream -s .
 " 10 plus 18 equals 28."
  10 plus 12 equals 22.
 ```
@@ -171,22 +171,32 @@ assistant: I am Dobby. Dobby is happy.
 
 ### Input & Output Customization
 
-To build reusable prompt, utilize [Front Matter](https://jekyllrb.com/docs/front-matter/) at the file's top:
+To build reusable prompt engineering,  we need to configure the input and output rules of the prompt engineering at the beginning of the file using [Front Matter](https://jekyllrb.com/docs/front-matter/). The front-matter starts with `---` on the first line and ends with another `---`.
 
-The following is an example script for a translation agent:
+When defining the `input` configuration, a list format is used. Each item in the list can either be a string (representing the parameter name) or an object (where the key is the parameter name and the value is the specific input configuration). For input configuration object, the following key attributes are supported:
+
+* `required`: Whether it is a required field, default is `false`.
+* `index`: Specifies the index position of this input parameter in the array parameters.
+* `description`: Description information for the input parameter (optional).
+* `type`: Data type of the input parameter (optional), default is `string`.
+
+The `output` configuration defines the expected structured output according to the [JSON Schema](https://json-schema.org/) standard.
+
+Here is a simplified example of a translator agent script:
 
 ```yaml
 ---
-# Below is the input/output configuration
-input:       # the input items
+# Below is the input and output configuration
+input:
   # Language of the content to be translated, default is "auto" for automatic detection
   - lang
-  # Required, the content to be translated
+  # Required, content to be translated
   - content:
       required: true
       index: 0
-      description: The content to be translated
-  # Required, Target language
+      description: Content to be translated
+      type: "string" # Default is string type, can be omitted.
+  # Target language
   - target: {required: true}
 output:
   type: "object"
@@ -199,51 +209,45 @@ output:
       type: "string"
     target_lang:
       type: "string"
-  required: ["target_text", "source_text", "source_lang", "target_lang"]
-# Set the default value for the content and target input
-content: "I love my motherland and my hometown."
-target: "Chinese"
+  required: ["target_text", "source_text", "target_lang"]
 # Optional configuration
 parameters:
-  # Using the parameters below will enforce JSON output format, ensuring the ai always outputs correct JSON format.
+  # Use the following parameters to enforce JSON output format, ensuring the large model always outputs correct JSON format.
   response_format:
     type: "json"
+# Set default values for content and target inputs
+content: "I love my motherland and my hometown."
+target: "Chinese"
 ---
 # Below is the script content
 system: |-
   You are the best translator in the world.
 
-  Output high-quality translation results in the JSON object and stop immediately:
-  {
-    "target_text": "the context after translation",
-    "source_text": "the original context to be translated",
-    "target_lang": "the target language",
-  }
+  Always output high-quality translation results!
 user: "{{content}}\nTranslate the above content {% if lang %}from {{lang}} {% endif %}to {{target}}."
 ```
 
-The configuration section defines the required input items and specifies the expected output format according to [JSON Schema](https://json-schema.org/).
-
-The script outputs in the specified JSON format. For example, running with the default value:
+Executing this script will produce output in the specified JSON format, for example, the default output would be:
 
 ```bash
-# Assuming the script file is named translator.ai.yaml
-$ai run -f translator.ai.yaml
+# Assume the file name of the script above is translator.ai.yaml
+$ai run translator.ai.yaml
 ```
 
 ```json
 {
   "target_text": "我爱我的祖国、我的家乡。",
   "source_text": "I love my motherland and my hometown.",
-  "target_lang": "Chinese"
+  "target_lang": "Chinese",
+  "reason": ""
 }
 ```
 
 running with your own input:
 
 ```bash
-# Set your own input parameters to override the defaults
-$ai run -f translator.ai.yaml '{content: "10 plus 18 equals 28.", lang: "English", target: "Chinese"}'
+# Set your own input parameters to override the default values
+$ai run translator.ai.yaml '{content: "10 plus 18 equals 28.", lang: "English", target: "Chinese"}'
 ```
 
 #### Special Input Parameters
@@ -269,7 +273,7 @@ When certain specific names are used to define parameters, they carry special me
 
 ##### keepThinking Parameter
 
-When the LLM model or prompt supports thinking mode, this parameter controls whether to retain the thinking process.
+When the LLM model or AI Script is configured to support the thinking mode, this parameter controls whether to retain the thinking process.
 
 * **Type**: `boolean` or `string`
 * **Description**: Controls whether to retain the thinking process. Default is `false`.
@@ -403,7 +407,7 @@ This mechanism allows for dynamic content insertion based on the AI's response.
 In this example, the AI's content is stored in the `prompt.JOKE` variable. However, you can directly reference the `JOKE` variable name. The assistant's message will also be replaced with:
 
 ```bash
-$ai run -f joke.ai.yaml
+$ai run joke.ai.yaml
 joke: Tell me a joke: Why don't scientists trust atoms? Because they make up everything. I hope you like it!
 
 {
@@ -537,7 +541,7 @@ user: "{{content}}"
 ```
 
 Note: In daily use, please do not use AI to perform numerical calculations, which is not what AI is good at. For example, try to let it perform decimal calculations, eg,
-`ai run -f calculator '{content: "13.1 + 4.857"}'`. However, CoT can be used to improve accuracy.
+`ai run calculator '{content: "13.1 + 4.857"}'`. However, CoT can be used to improve accuracy.
 
 When parameters are included, the AI `content` is combined with these parameters and forwarded together to the agent. For example,
 

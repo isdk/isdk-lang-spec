@@ -89,9 +89,9 @@ assistant: "[[result]]" # 执行AI,替换为AI传回的结果result
 结果：
 
 ```bash
-$ai run -f test.ai.yaml --no-stream
+$ai run test.ai.yaml --no-stream
 # Or search the script id in current directory
-# $ai run -f test --no-stream -s .
+# $ai run test --no-stream -s .
 " 10加18等于28。"
  10加12等于22。
 ```
@@ -179,7 +179,16 @@ assistant: I am Dobby. Dobby is happy.
 
 为了构建可复用的提示词工程,我们需要在文件的开头使用 [front-matter](https://jekyllrb.com/docs/front-matter/) 来配置提示词工程的输入和输出规则。`front-matter`第一行以`---`开始, 配置最后以`---`行结束.
 
-以下是一个翻译智能体角色的脚本示例:
+在定义输入(`input`)配置时，采用列表的形式来进行设置。列表中的每一项可以是一个字符串（代表参数名称），也可以是一个对象（其中 key 为参数名，value 为具体的输入配置）。对于输入配置对象，支持以下几个关键属性：
+
+* `required`: 是否为必填项，默认为`false`
+* `index`: 指定该输入参数在数组参数中的索引位置
+* `description`: 输入参数的描述信息(可选项)
+* `type`: 输入参数的数据类型(可选项)，默认为`string`
+
+输出(`output`)配置按照[JSON Schema](https://json-schema.org/)规范来定义预期的结构化输出。
+
+以下是一个简化的翻译智能体角色的脚本示例:
 
 ```yaml
 ---
@@ -192,6 +201,7 @@ input:
       required: true
       index: 0
       description: 待翻译内容
+      type: "string" # 默认为string类型，可省略。
   # 目标语言
   - target: {required: true}
 output:
@@ -219,38 +229,32 @@ target: "Chinese"
 system: |-
   You are the best translator in the world.
 
-  Output high-quality translation results in the JSON object and stop immediately:
-  {
-    "target_text": "the context after translation",
-    "source_text": "the original context to be translated",
-    "target_lang": "the target language",
-  }
+  Output high-quality translation result always!
 user: "{{content}}\nTranslate the above content {% if lang %}from {{lang}} {% endif %}to {{target}}."
 ```
 
-配置部分定义了必需的输入项并按[JSON Schema](https://json-schema.org/)规范定义了预期的输出格式。
-
-该脚本会按照指定的json格式输出, eg, 上面默认项的输出为:
+执行该脚本会按照指定的json格式输出, eg, 上面默认项的输出为:
 
 ```bash
 #假设上面脚本的文件名为translator.ai.yaml
-$ai run -f translator.ai.yaml
+$ai run translator.ai.yaml
 ```
 
 ```json
 {
   "target_text": "我爱我的祖国、我的家乡。",
   "source_text": "I love my motherland and my hometown.",
-  "target_lang": "Chinese"
+  "target_lang": "Chinese",
+  "reason": ""
 }
 ```
 
 ```bash
 # 设置自己的输入参数,替换默认值
-$ai run -f translator.ai.yaml '{content: "10加18等于28。", lang: "中文", target: "English"}'
+$ai run translator.ai.yaml '{content: "10加18等于28。", lang: "中文", target: "English"}'
 ```
 
-#### 特殊的输入参数
+#### 特殊的预定义的输入参数
 
 当使用某些特定名称定义参数时，它们具有特殊含义：
 
@@ -275,7 +279,7 @@ $ai run -f translator.ai.yaml '{content: "10加18等于28。", lang: "中文", t
 
 ##### keepThinking 参数
 
-当LLM模型或提示支持思考模式时，该参数可以控制是否保留思考过程。
+当LLM模型或AI脚本配置为支持思考模式时，该参数可以控制是否保留思考过程。
 
 * **类型**: `boolean` or `string`
 * **描述**: 是否保留思考过程。默认值为 `false`
@@ -405,7 +409,7 @@ $ret('')
 在该例子中AI的内容被存放在 `prompt.JOKE` 变量中，不过你可以直接引用`JOKE`变量名. assistant的消息也将被替换为:
 
 ```bash
-$ai run -f joke.ai.yaml
+$ai run joke.ai.yaml
 joke: 讲个笑话： Why don't scientists trust atoms? Because they make up everything. 希望您喜欢！
 
 { 0: "Why don't scientists trust atoms? Because they make up everything."
@@ -519,7 +523,7 @@ system: 请作为一个计算器，计算表达式结果. 只输出结果。
 user: "{{content}}"
 ```
 
-注意： 在日常使用中，请勿使用AI进行数字运算，这不是AI所擅长的,比如，请尝试让它进行小数运算，eg: `ai run -f calculator '{content: "13.1 + 4.857"}'`,不过是可以用CoT提高准确度。
+注意： 在日常使用中，请勿使用AI进行数字运算，这不是AI所擅长的,比如，请尝试让它进行小数运算，eg: `ai run calculator '{content: "13.1 + 4.857"}'`,不过是可以用CoT提高准确度。
 
 如果带参数,那么会把AI结果`content`合并传入参数一起传给智能体, eg,
 
