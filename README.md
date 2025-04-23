@@ -89,6 +89,67 @@ $ai run test.ai.yaml --no-stream
  10 plus 12 equals 22.
 ```
 
+#### Structured System (Role) Message Specification
+
+System (role) messages serve as the core instructions in the dialogue flow of Large Language Models (LLMs). They act as the initial context that decisively guides model behavior and must always be declared with the `system` role, placed at the beginning of the dialogue.
+
+The `content` of system message supports two formats:：
+
+1. Plain Text Format: Directly input textual content to guide the model.
+2. Structured Object Format (recommended):
+   * `background`: Optional background information text.
+   * `content`: Required main body of the system message.
+   * `notes`: Optional list of notes.
+
+**Multi-System Message Merging Rules**: When multiple system messages exist in an AI script:
+
+1. If the content is a plain text string, it will be processed as the `content` of a structured system message.
+2. If it is a structured object, the fields will be deeply merged:
+   * `background` field： Each `background` field is separated by `\n` and ultimately merged into a single string.
+   * `content`field：  Each `content` field is separated by `\n` and ultimately merged into a single string.
+   * `notes` field： Each `notes` field is merged into a string array.
+
+例子：
+
+```yaml
+# System Message 1 (Structured)
+system:
+  background: "You are an academic paper translation expert"
+
+# System Message 2 (Plain Text)
+system: "Prioritize translation accuracy"
+
+# System Message 3 (Structured)
+system:
+  content: "Use professional terminology"
+  notes: ["Check reference format"]
+
+# Final standardized format:
+system:
+   background: "You are an academic paper translation expert"
+   content: |
+     Prioritize translation accuracy
+     Use professional terminology
+   notes:
+     - Check reference format
+
+# Final merged result
+system: |-
+  You are an academic paper translation expert
+
+  Prioritize translation accuracy
+  Use professional terminology
+
+  Notes:
+  * Check reference format
+```
+
+This design ensures backward compatibility, supporting a smooth transition from traditional plain text configurations while allowing for customized extensions through structured objects.
+
+Note:
+
+* The `SystemNotesTitle` configuration option can control the title within the `notes` of the system message.
+
 #### Group Chat
 
 The group chat feature enhances PPE's dialogue system with structured natural language, making it easier for multiple agents to collaborate and communicate, thus more efficiently completing complex tasks.
