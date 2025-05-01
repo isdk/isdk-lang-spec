@@ -904,6 +904,12 @@ import: # Object Format
 * By default, importing an AI script will at least import the `$[AI_ID](data)` function object, which is used to execute the AI script itself. On this function object, there is also the `$[AI_ID].interact({message})` AI interaction function; as well as the items exported via the `export` configuration in the AI script.
 * Added the `ai:` prefix convention, indicating the import of a AI script package or directory. The script package can include AI scripts, `.ai.js` files, and `.ai.wasm` files. For example, `ai:package_path#id.ai.yaml`, `ai:package_path#./some.ai.js`.
 * **Naming Convention for Template Function**: Functions that start with `template$` are designated as Jinja2 template function.
+  * You can also specify a function as a template function during import by using `type: 'template'`.
+
+  ```yaml
+  import:
+    - "js:js_package_name": [{someFunc: {type: 'template'}}]
+  ```
 
 ##### Export
 

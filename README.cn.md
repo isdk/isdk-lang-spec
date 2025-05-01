@@ -901,6 +901,12 @@ import:
 * 默认导入AI脚本则至少会导入`$[AI_ID](data)`函数对象，该函数用于执行该AI脚本本身，在该函数对象上还有`$[AI_ID].interact({message})`AI交互函数;以及AI脚本中通过`export`配置导出的项目。
 * 新增 `ai:` 前缀约定, 表示 AI 脚本包或目录导入。脚本包可以包括AI脚本,`.ai.js`文件以及`.ai.wasm`文件。例如，`ai:package_path#id.ai.yaml`, `ai:package_path#./some.ai.js`
 * 模板函数命名约定:以`template$`打头的函数名为jinja2模板函数，其他函数为普通函数。
+  * 也可以在导入的时候，通过`type: 'template'`指定某个函数为模板函数。
+
+  ```yaml
+  import:
+    - "js:js_package_name": [{someFunc: {type: 'template'}}]
+  ```
 
 ##### Export
 
