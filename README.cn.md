@@ -106,6 +106,7 @@ $ai run test.ai.yaml --no-stream
 2. 结构化对象格式（推荐）
    * `background`: 可选的背景信息文本内容
    * `content`: 必填的系统消息正文
+   * `output`: 可选的输出约定列表,
    * `notes`: 可选的注意事项列表
 
 **多系统消息合并规则**： 当AI脚本中存在多个系统消息时
@@ -156,6 +157,7 @@ system: |-
 注意:
 
 * 使用`SystemNotesTitle`配置选项可以控制修改系统消息`notes`当中的标题。
+* 使用`SystemOutputTitle`配置选项可以控制修改系统消息`output`当中的标题。注意`SystemOutputTitle`中必须存在模板变量`{{type}}`，否则视为无效。
 
 #### 角色群聊
 
@@ -371,6 +373,7 @@ $ai run translator.ai.yaml '{content: "10加18等于28。", lang: "中文", targ
   * 如果设置了强制输出为`JSON`(`response_format: {type: json}`),那么就只能一次完成,不能续写,必须根据输出json内容的最大长度设置`max_tokens`.
   * 当在消息模板中使用该变量时`{{output}}`,默认会以自然语言的格式输出。
     * 可以通过在`parameters`设置参数`naturalOutput`为`false`禁用该功能。禁用后该消息模板会以`JSON`字符串的形式输出。
+  * `autoBuildOutputPrompt` 参数控制是否自动构建`output`的输出内容提示作为系统提示。默认为`true`。
 * `NObj` 格式是近似自然语言的结构化简单对象格式，详细介绍参阅： [Natural Language Object](./natural-language-object.cn.md)
 * **forceJson** 强制将输出转换为JSON对象，默认为`true`, 当强制转换失败,则会抛出错误信息。当设置为`false`,如果转换失败,则会返回原始文本。
   * 仅当存在`ouput`规范以及响应输出格式才有效。
@@ -737,7 +740,7 @@ permissions:
    - `"!search"`：禁止调用`search`脚本。
 3. **优先级**：负匹配规则优先于正匹配规则。
 
-### 动态调整生成概率：((!text:bias)) 语法
+### 动态调整生成概率：`((!text:bias))` 语法
 
 为了更精细地控制生成文本的概率分布，引入了新的提示词语法 `((!text:bias))`，用于动态调整某些 token 的生成概率（`logit-bias`）。该语法可以灵活应用于多种场景，例如引导模型生成特定词汇、避免不希望的内容或调整生成结果的多样性。
 
@@ -897,6 +900,7 @@ import:
       * `ai:package_name: ['some']`
 * 默认导入AI脚本则至少会导入`$[AI_ID](data)`函数对象，该函数用于执行该AI脚本本身，在该函数对象上还有`$[AI_ID].interact({message})`AI交互函数;以及AI脚本中通过`export`配置导出的项目。
 * 新增 `ai:` 前缀约定, 表示 AI 脚本包或目录导入。脚本包可以包括AI脚本,`.ai.js`文件以及`.ai.wasm`文件。例如，`ai:package_path#id.ai.yaml`, `ai:package_path#./some.ai.js`
+* 模板函数命名约定:以`template$`打头的函数名为jinja2模板函数，其他函数为普通函数。
 
 ##### Export
 
