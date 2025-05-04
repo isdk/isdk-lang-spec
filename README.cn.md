@@ -1460,6 +1460,11 @@ $on:
   callback: "?={...arg1, event: event.type}" # 无法取消事件监听
 ```
 
+注意:
+
+* 如果回调函数有返回值，那么在其他回调函数中可以通过参数`event.result`看到，以最后一个回调函数的返回值作为最终结果返回给`$emit`事件触发函数。
+* 设置参数`event.stopped`为`true`会阻止后续回调函数执行。
+
 #### `$emit` 触发事件函数
 
 参数如下:
@@ -1510,6 +1515,10 @@ $emit:
   - 当回调函数返回值的时候, 则表示加载的聊天记录.
 - `save-chats`: 保存聊天记录时触发.
   - 回调参数: `(event, messages: AIChatMessage[], filename?: string) => void`
+- `beforeGenerateChats`: 在生成聊天记录前触发,可用于修改原始的聊天记录.
+  - 回调参数: `(event, data: {messages: AIChatMessage[], fromIndex: number, toIndex?: number}) => {messages: AIChatMessage[], fromIndex: number, toIndex?: number}|void`
+- `afterGenerateChats`: 在生成聊天记录后触发,可用于修改生成的聊天记录.
+  - 回调参数: `(event, data: {messages: AIChatMessage[], fromIndex: number, toIndex: number, result: AIChatMessage[]}) => AIChatMessage[]|void`
 
 **注意**:
 

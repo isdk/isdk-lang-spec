@@ -1453,6 +1453,11 @@ $on:
   callback: "?={...arg1, event: event.type}" # Unable to cancel event listening
 ```
 
+Note:
+
+* If the callback function returns a value, other callback functions can access it through the `event.result` parameter, with the return value of the last callback function serving as the final result returned to the `$emit` event trigger function.
+* Setting the parameter `event.stopped` to `true` will prevent the execution of subsequent callback functions.
+
 #### `$emit` triggers event function
 
 The parameters are as follows:
@@ -1506,6 +1511,10 @@ $emit:
 - when the callback function returns a value, It means the loaded chat history.
 - `save-chats`: Triggered when the chat history is saved.
 - Callback parameters: `(event, messages: AIChatMessage[], filename?: string) => void`
+- `beforeGenerateChats`: Triggered before generating chat records, this event can be used to modify the original chat messsages.
+  - Callback parameters: `(event, data: {messages: AIChatMessage[], fromIndex: number, toIndex?: number}) => {messages: AIChatMessage[], fromIndex: number, toIndex?: number}|void`
+- `afterGenerateChats`: Triggered after generating chat records, this event can be used to modify the generated chat messsages.
+  - Callback parameters: `(event, data: {messages: AIChatMessage[], fromIndex: number, toIndex: number, result: AIChatMessage[]}) => AIChatMessage[]|void`
 
 **Note**:
 
