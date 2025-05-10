@@ -1556,6 +1556,9 @@ $emit:
     - chunk: 当前流块内容
     - content: 当前得到的所有chunk的字符串内容
     - retryCount: 当因为达到`max_token`后自动调用llm的重试次数
+- `llmMessagePushed`: 当大模型的返回结果作为助手消息推送到消息列表后触发
+  - 回调参数: `(event, message: AIChatMessageParam) => void`
+    - message: 为新增的助手消息
 - `llmRequest`: 事件在需要得到大模型结果的时候触发,用于通过事件调用大模型,得到大模型结果. `[[RESPONSE]]`模板会触发该事件
   - 回调参数: `(event, messages: AIChatMessage[], options?) => void|result<string>`
   - 使用开关`disableLlmRequest: true`禁用该事件.

@@ -1567,20 +1567,23 @@ $emit:
 - `llm`: the event is triggered before the large model returns the result, used to modify the large model return result.
 - callback parameters: `(event, result: string) => void|result<string>`
 - `llmStream`: triggered when the large model returns the result in streaming mode
-- callback parameters: `(event, chunk: AIResult, content: string, retryCount: number) => void`
-- chunk: current stream chunk content
-- content: string content of all chunks currently obtained
-- retryCount: number of retries for automatically calling llm when `max_token` is reached
+  - callback parameters: `(event, chunk: AIResult, content: string, retryCount: number) => void`
+    - chunk: current stream chunk content
+    - content: string content of all chunks currently obtained
+    - retryCount: number of retries for automatically calling llm when `max_token` is reached
+- `llmMessagePushed`: triggered after the large model's response is pushed to the message list as an assistant message.
+  - callback parameters: `(event, message: AIChatMessageParam) => void`
+    - message: The newly added assistant message.
 - `llmRequest`: event is triggered when the large model result is needed, used to call the large model through the event and get the large model result. `[[RESPONSE]]` template will trigger this event
-- callback parameters: `(event, messages: AIChatMessage[], options?) => void|result<string>`
-- use the switch `disableLlmRequest: true` to disable this event.
+  - callback parameters: `(event, messages: AIChatMessage[], options?) => void|result<string>`
+  - use the switch `disableLlmRequest: true` to disable this event.
 - `ready`: triggered after the script interaction is ready, you can force the setting of whether it is in the ready state through the `$ready()` function.
-- callback parameters: `(event, isReady: boolean) => void`
+  - callback parameters: `(event, isReady: boolean) => void`
 - `load-chats`: triggered when loading chat records.
-- callback parameters: `(event, filename: string) => AIChatMessage[]|void`
-- when the callback function returns a value, It means the loaded chat history.
+  - callback parameters: `(event, filename: string) => AIChatMessage[]|void`
+  - when the callback function returns a value, It means the loaded chat history.
 - `save-chats`: Triggered when the chat history is saved.
-- Callback parameters: `(event, messages: AIChatMessage[], filename?: string) => void`
+  - Callback parameters: `(event, messages: AIChatMessage[], filename?: string) => void`
 - `beforeGenerateChats`: Triggered before generating chat records, this event can be used to modify the original chat messsages.
   - Callback parameters: `(event, data: {messages: AIChatMessage[], fromIndex: number, toIndex?: number}) => {messages: AIChatMessage[], fromIndex: number, toIndex?: number}|void`
 - `afterGenerateChats`: Triggered after generating chat records, this event can be used to modify the generated chat messsages.
