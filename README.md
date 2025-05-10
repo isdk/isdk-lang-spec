@@ -1394,6 +1394,76 @@ $get:
   - var2
 ```
 
+#### Understanding `$ctx`: Contextual Variable Management in AI Scripts
+
+The `$ctx` directive provides a sandboxed variable access mechanism for scripts or AI agents in AI Script. It enables external scripts to securely interact with context-specific variables assigned by their parent/calling script, ensuring state persistence across multiple invocations while maintaining isolation from global state.
+
+##### Key Features
+
+1. Unified Interface
+
+```yaml
+$ctx # Get all variables from caller
+$ctx: { id: "script_id" } # Get variables for specific script
+$ctx: { key: "my_var" } # Get single variable
+$ctx: { key: "my_var", value: "new_value" } # Set variable
+```
+
+##### Parameters
+
+| Parameter | Description | Default Value |
+| --------- | ----------- | ------------- |
+| key | Variable name to access | Returns all variables if omitted |
+| value | Value to set for the variable | If absent, performs read operation |
+| id | Target script ID | Current script's ID if omitted |
+
+##### 🧠 Design Philosophy
+
+Sandboxed State Management
+
+* **Context Isolation**: Each script has its own dedicated variable space
+* **State Persistence**: Maintains context across multiple executions
+* **Security**: Prevents unintended modification of global state
+* **Scalability**: Enables concurrent operation of multiple scripts without conflicts
+
+🧠 设计理念
+
+`$ctx` 的设计灵感来自于“沙盒式变量空间”模式，外部脚本可以通过它，在多次调用之间保持自己的状态，而无需直接操作全局变量或自身的成员变量（因为它们可能被重复调用或嵌套调用）.
+
+* 让外部脚本能够**安全地保存自己的上下文状态**
+* **避免**外部脚本**污染全局环境或修改主脚本状态**
+* 实现**多外部脚本之间的状态隔离**
+* 支持"长期"运行脚本的**状态持久化**
+
+##### 📌 Practical Applications
+
+###### Scenario 1: Conditional Execution Based on Context
+
+
+```yaml
+$set:
+  skipValidation: "?= this.$ctx({key: 'skipValidation'})"
+$if: "{{skipValidation}}"
+  then:
+    $ret: "Validation skipped."
+  else:
+    # Normal validation logic here...
+```
+
+###### Common Use Cases
+
+1. **Stateful Workflows**: Maintaining step tracking in multi-stage processes
+2. **Configuration Sharing**: Passing runtime settings between scripts
+3. **Result Caching**: Storing intermediate results between executions
+4. **Session Management**: Tracking user interaction states in chatbots
+
+The `$ctx` system enables:
+
+* **Modular Script Design**: Scripts can be reused with different contexts
+* **Clean Architecture**: Separates concerns between parent and child scripts
+* **Predictable Behavior**: Reduces side effects through strict context boundaries
+* **Efficient Development**: Simplifies complex workflow management through state persistence
+
 ### Event convention
 
 Highly programmable and event-driven prompt generation system, which allows users to dynamically control and customize the process of generating text by defining event listeners, triggers and corresponding callback functions. From the examples given, we can see several key features and advantages:
