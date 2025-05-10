@@ -1509,11 +1509,13 @@ $off:
 
 The expression is used as a callback function. The parameters in the expression are as follows:
 
-- event: event instance
-- event.type: event name
-- event.target: event source, that is, the current script runtime
-- arg1: the first parameter value passed to the event listener function
-- args: the remaining parameter value list passed to the event listener function, if any
+- `event`: event object instance
+  - event.type: event name
+  - event.target: event source, that is, the current script runtime
+  - event.stopped: Setting this to true will prevent the execution of subsequent callback functions. It serves as a mechanism to halt further processing of event handlers in the chain.
+  - event.result: This holds the return value from the last callback function. It allows data to be passed along and modified through multiple callback functions in sequence.
+- `arg1`: the first parameter value passed to the event listener function
+- `args`: the remaining parameter value list passed to the event listener function, if any
 
 These parameters are equivalent to the callback function: `(event, arg1, ...args) => void|any`
 
