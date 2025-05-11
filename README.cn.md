@@ -683,6 +683,9 @@ tools:
   # 使用对象格式方便重载默认的说明信息
   weather:
     title: get weather information
+    defaults: # 重载调用工具参数值
+      location: "上海"
+      date: today
   search:
     title: search in search engine
   now:

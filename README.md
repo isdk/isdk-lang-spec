@@ -698,6 +698,9 @@ tools:
   # Using object format makes it easier to override default descriptions
   weather:
     title: get weather information
+    defaults: # overwrite the default parameters of the tool
+      location: "Shanghai"
+      date: today
   search:
     title: search in search engine
   now:
