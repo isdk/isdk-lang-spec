@@ -1,4 +1,4 @@
-# **NOBJ** (Natural Object) - Natural Language Object Notation
+# **NOBJ** (Natural Object) - Natural Language Object Notation v0.0.1
 
 ## 简介
 
@@ -15,10 +15,10 @@
 
 当前解析限制:
 
-* 当前仅支持Flat简单对象或数组。
-* 缺少层级结构，无法表示嵌套对象或数组。
-* 不支持可选项。
-* 需要提示词保证LLM输出正确的顺序和格式。
+* 当前仅支持Flat简单对象或数组。(v0.0.1)
+  * 缺少层级结构，无法表示嵌套对象或数组。
+* 不支持可选项。(v0.0.1)
+* 需要提示词保证LLM输出正确的顺序和格式。(v0.0.1)
 
 ## 举例
 
