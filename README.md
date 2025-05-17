@@ -896,11 +896,11 @@ import: # Object Format
 * If no function names are specified during import, all functions will be imported by default. For example, `js:path`, then all path functions will be imported into the current script (functions with the same name that already exist will not be imported), and can be used in the script directly via `$basename(...)`.
 * During import, you can use `*` to indicate importing onto the package name object. For example, `"js:path": "* "`, then in the current script, use it through `$path.basename(...)`
   * You can specify specific names to replace `*`. For example, `"js:path": "aPath"`, then in the current script, use it through `$aPath.basename(...)`
-* If the module contains a function `$initializeModule` and it is imported, this function will be executed automatically after the module is loaded.
-  * Exception for packages(directories): The entry script will always be executed as `$initializeModule` automatically after the module is loaded.
-  * To disable this behavior, you must manually set `$initializeModule: {disable: true}` when importing the package(directory).
-  * If you want to disable this behavior within the package itself, then set `$initializeModule: false` in the entry script.
-  * Additionally, directly referencing a file within the package will also skip `$initializeModule`.
+* If the module contains a function `$initializeExec` and it is imported, this function will be automatically executed during the initialization phase after the module is loaded.
+  * Exception for packages(directories): The entry script will always be executed as `$initializeExec` automatically during the initialization phase.
+  * To disable this behavior, you must manually set `$initializeExec: {disable: true}` when importing the package(directory).
+  * If you want to disable this behavior within the package itself, then set `$initializeExec: false` in the entry script.
+  * Additionally, directly referencing a file within the package will also skip `$initializeExec`.
     * Example: `ai:package_name#./some.ai.js`
     * If you want the entry script of the package to be executed during initialization, ensure that `some.ai.js` is exported via the entry script:
       * Example: `ai:package_name: ['some']`
@@ -938,24 +938,24 @@ export:
 
 Note:
 
-* When the script contains an `export`, the script itself will be executed as an initialization function (`$initializeModule`) upon import by default, unless there is a `$initializeModule` item in the script:
-  * Setting `$initializeModule` to `false` will prevent the execution of the initialization function, or decalare the `$initializeModule` initialization directive by yourself.
+* When the script contains an `export`, the script itself will be executed as an initialization function (`$initializeExec`) upon import by default, unless there is a `$initializeExec` item in the script:
+  * Setting `$initializeExec` to `false` will prevent the execution of the initialization function, or decalare the `$initializeExec` initialization directive by yourself.
 
-###### Module Initialization Method `$initializeModule`
+###### Module Initialization Method `$initializeExec`
 
-The this passed to `$initializeModule` refers to different object depending on the context:
+The this passed to `$initializeExec` refers to different object depending on the context:
 
-* If the `$initializeModule` function is **from a JavaScript (JS) script**, the `this` will refer to the `caller` object (ensuring compatibility with JS behavior).
-* If the `$initializeModule` function is **from an AI script**, the `this` will refer to the AI script itself, treating the script as an independent object.
+* If the `$initializeExec` function is **from a JavaScript (JS) script**, the `this` will refer to the `caller` object (ensuring compatibility with JS behavior).
+* If the `$initializeExec` function is **from an AI script**, the `this` will refer to the AI script itself, treating the script as an independent object.
 
-The Arguments for `$initializeModule` include:
+The Arguments for `$initializeExec` include:
 
 * `data`: This is the `data` object passed to the `caller`, or the default `data` object of the `caller` if no specific data is provided.
 * `caller`: This represents the caller object itself.
 
 Notes:
 
-* There’s a configuration option in the AI script called `runSelfBeforeInitModule`, which determines whether the AI script should execute itself before running `$initializeModule`. By default, this is set to `false`.
+* There’s a configuration option in the AI script called `runSelfBeforeInitModule`, which determines whether the AI script should execute itself before running `$initializeExec`. By default, this is set to `false`.
 
 #### Prompt configuration
 

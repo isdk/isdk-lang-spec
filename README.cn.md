@@ -893,11 +893,11 @@ import:
 * 导入时没有指定导入的函数名，则默认导入所有函数。eg， `js:path`, 那么所有path函数都会被导入到当前脚本（已经存在同名的函数不会导入）中，可以在脚本中直接通过`$basename(...)`使用。
 * 导入时，可用 `*` 表示导入在包名对象上。eg, `"js:path": "*"`, 那么在当前脚本中通过`$path.basename(...)`使用
   * 可以指定特定的名称替换 `*`。eg, `"js:path": "aPath"`, 那么在当前脚本中通过`$aPath.basename(...)`使用
-* 如果模块中存在函数`$initializeModule`并且被导入,那么该函数会在模块加载后自动执行.
-  * 包（目录）例外，入口脚本会始终作为`$initializeModule`在模块加载后自动执行.
-    * 禁用必须手动在导入包（目录）时设置`$initializeModule: {disable: true}`。
-    * 如果要在包本身中禁用该习惯，那么请在入口脚本中设置`$initializeModule: false`。
-    * 另外直接引用包中文件也会跳过`$initializeModule`
+* 如果模块中存在函数`$initializeExec`并且被导入,那么该函数会在模块加载后的初始化执行阶段时自动执行.
+  * 包（目录）例外，入口脚本会始终作为`$initializeExec`在初始化执行阶段时自动执行.
+    * 禁用必须手动在导入包（目录）时设置`$initializeExec: {disable: true}`。
+    * 如果要在包本身中禁用该习惯，那么请在入口脚本中设置`$initializeExec: false`。
+    * 另外直接引用包中文件也会跳过`$initializeExec`
       * `ai:package_name#./some.ai.js`
       * 如果希望初始化时候执行包中的入口脚本必须让some.ai.js通过入口脚本导出:
       * `ai:package_name: ['some']`
@@ -935,14 +935,14 @@ export:
 
 注意:
 
-* 当脚本存在`export`后，默认脚本会把自身作为导入时的初始化函数(`$initializeModule`)执行, 除非在`脚本`中存在`$initializeModule`项：
-  * 设置 `$initializeModule` 为 `false` 则禁用该行为，不会执行初始化函数；或者设置`$initializeModule`为一个初始化函数。
+* 当脚本存在`export`后，默认脚本会把自身作为导入时的初始化函数(`$initializeExec`)执行, 除非在`脚本`中存在`$initializeExec`项：
+  * 设置 `$initializeExec` 为 `false` 则禁用该行为，不会执行初始化函数；或者设置`$initializeExec`为一个初始化函数。
 
-###### `$initializeModule` 模块初始化方法
+###### `$initializeExec` 模块初始化方法
 
-传入`$initializeModule`的`this`为调用者的对象,
+传入`$initializeExec`的`this`为调用者的对象,
 
-`$initializeModule`的参数为
+`$initializeExec`的参数为
 
 * `data`: 传入`调用者`的args数据对象 或`调用者`的默认args data对象
 * `caller`: 调用者对象
@@ -951,7 +951,7 @@ export:
 
 * 如果初始化来自js脚本，那么传入的`this`为caller(保持兼容)
 * 如果初始化来自AI脚本，那么传入的`this`为该脚本本身,将脚本视作对象.
-  * 脚本配置选项 `runSelfBeforeInitModule`，决定是否将AI脚本本身作为初始化过程的一部分先执行，然后再执行`$initializeModule`。默认为 `false`
+  * 脚本配置选项 `runSelfBeforeInitModule`，决定是否将AI脚本本身作为初始化过程的一部分先执行，然后再执行`$initializeExec`。默认为 `false`
 
 #### 提示词配置
 
