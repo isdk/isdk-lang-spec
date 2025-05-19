@@ -955,7 +955,7 @@ The Arguments for `$initializeExec` include:
 
 Notes:
 
-* There’s a configuration option in the AI script called `runSelfBeforeInitModule`, which determines whether the AI script should execute itself before running `$initializeExec`. By default, this is set to `false`.
+* There’s a configuration option in the AI script called `runSelfBeforeInitializeExec`, which determines whether the AI script should execute itself before running `$initializeExec`. By default, this is set to `false`.
 
 #### Prompt configuration
 

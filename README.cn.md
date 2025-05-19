@@ -940,7 +940,7 @@ export:
 
 ###### `$initializeExec` 模块初始化方法
 
-传入`$initializeExec`的`this`为调用者的对象,
+执行阶段的初始化方法，在每次运行前期，对于`import`的模块会尝试调用一次该方法，初始化导入的模块。
 
 `$initializeExec`的参数为
 
@@ -951,7 +951,7 @@ export:
 
 * 如果初始化来自js脚本，那么传入的`this`为caller(保持兼容)
 * 如果初始化来自AI脚本，那么传入的`this`为该脚本本身,将脚本视作对象.
-  * 脚本配置选项 `runSelfBeforeInitModule`，决定是否将AI脚本本身作为初始化过程的一部分先执行，然后再执行`$initializeExec`。默认为 `false`
+  * 脚本配置选项 `runSelfBeforeInitializeExec`，决定是否将AI脚本本身作为初始化过程的一部分先执行，然后再执行`$initializeExec`。默认为 `false`
 
 #### 提示词配置
 
