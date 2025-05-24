@@ -43,7 +43,6 @@ Welcome to the streamlined guide for getting started quickly with your AI-powere
   * Building on YAML avoids the complexity of designing a new language from scratch, allowing developers to concentrate on refining AI logic rather than dealing with formatting challenges.
   * AI benefits directly from YAML’s structured nature, extracting essential information efficiently while maintaining compatibility with existing tools.
 
-
 ### Structuring Dialogue
 
 Each line represents a conversation turn, attributed to either `system`,`assistant`, `user`, or implied `user` if not stated:
@@ -587,7 +586,6 @@ $echo: "#A total of {{LatestResult}} pieces of candy"
 ```
 
 `calculator.ai.yaml`:
-
 
 ```yaml
 ---
@@ -1420,6 +1418,9 @@ $ctx: { key: "my_var", value: "new_value" } # Set variable
 | key | Variable name to access | Returns all variables if omitted |
 | value | Value to set for the variable | If absent, performs read operation |
 | id | Target script ID | Current script's ID if omitted |
+| rootScope | Boolean indicating whether to access the top-level context in the call chain | false |
+
+> ✅ Default Behavior: When rootScope is false, $ctx accesses the variables allocated by the immediate caller of the current script.
 
 ##### 🧠 Design Philosophy
 
@@ -1432,27 +1433,28 @@ Sandboxed State Management
 
 🧠 设计理念
 
-`$ctx` 的设计灵感来自于“沙盒式变量空间”模式，外部脚本可以通过它，在多次调用之间保持自己的状态，而无需直接操作全局变量或自身的成员变量（因为它们可能被重复调用或嵌套调用）.
+`$ctx` draws inspiration from the “sandboxed variable space” pattern, allowing external scripts to maintain their own contextual state across multiple calls without directly manipulating global variables or the parent script’s internal state.
 
-* 让外部脚本能够**安全地保存自己的上下文状态**
-* **避免**外部脚本**污染全局环境或修改主脚本状态**
-* 实现**多外部脚本之间的状态隔离**
-* 支持"长期"运行脚本的**状态持久化**
+* Ensures external scripts can **securely preserve their own contextual state**
+* Helps **prevent pollution of the global environment** or **the parent script's state**
+* Enables **isolation between multiple external scripts**
+* Supports "state persistence" for long-running scripts
 
 ##### 📌 Practical Applications
 
 ###### Scenario 1: Conditional Execution Based on Context
 
-
 ```yaml
 $set:
-  skipValidation: "?= this.$ctx({key: 'skipValidation'})"
+  skipValidation: "?= this.$ctx({key: 'skipValidation', rootScope: true})"
 $if: "{{skipValidation}}"
   then:
     $ret: "Validation skipped."
   else:
     # Normal validation logic here...
 ```
+
+This allows the script to dynamically adapt based on shared configuration or runtime decisions made at a higher level.
 
 ###### Common Use Cases
 
@@ -1467,6 +1469,32 @@ The `$ctx` system enables:
 * **Clean Architecture**: Separates concerns between parent and child scripts
 * **Predictable Behavior**: Reduces side effects through strict context boundaries
 * **Efficient Development**: Simplifies complex workflow management through state persistence
+
+⚠️ Important Notes:
+
+1. **Scope Control**:
+    * By default, `$ctx` operates on the **immediate caller's** variable store.
+    * To access the **top-level context**, use `rootScope: true`.
+2. **Handling Non-Existent Variables**:
+    * If the target caller does not define the requested variable, it returns `undefined` or an empty value.
+    * Consider using default values or nullish coalescing (`??`) when checking for variables.
+3. **Naming Conflicts and Scope Isolation**:
+    * Variables are isolated per script ID, meaning that each script maintains its own independent variable space.
+    * By default (without specifying `id`), there won't be any naming conflicts with other scripts, as long as variable names are used appropriately within their own namespace.
+    * **Best Practice**:
+        * Avoid writing to another script’s context unless explicitly designed.
+        * At most, only **read** from other scripts’ contexts to ensure encapsulation and reduce side effects.
+        * Use namespace-style keys like `auth.user`, `config.locale` to improve clarity and avoid accidental overwrites.
+4. **Script ID Role**:
+    * The `id` parameter allows specifying which script’s context to access; defaults to the current script.
+    * Useful when sharing or inspecting data from other scripts.
+5. **Read vs Write Operations**:
+    * Omitting `value` will retrieve the variable.
+    * Setting `value` will update the variable in the specified scope.
+6. **Nested Call Support**:
+    * `$ctx` works reliably across nested call chains, making it suitable for complex agent interactions.
+7. **Debugging Tip**:
+    * During development, you can use `$ctx` without any parameters to view all available variables in the current context.
 
 ### Event convention
 
