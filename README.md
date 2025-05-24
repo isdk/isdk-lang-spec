@@ -239,6 +239,7 @@ When defining the `input` configuration, a list format is used. Each item in the
 * `required`: Whether it is a required field, default is `false`.
 * `index`: Specifies the index position of this input parameter in the array parameters.
 * `description`: Description information for the input parameter (optional).
+* `default`:  When used as an optional parameter, describe the default value.
 * `type`: Data type of the input parameter (optional), default is `string`.
 
 The `output` configuration defines the expected structured output according to the [JSON Schema](https://json-schema.org/) standard.

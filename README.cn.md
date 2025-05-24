@@ -247,6 +247,7 @@ assistant: I am Dobby. Dobby is happy.
 * `required`: 是否为必填项，默认为`false`
 * `index`: 指定该输入参数在数组参数中的索引位置
 * `description`: 输入参数的描述信息(可选项)
+* `default`: 当作为可选项时，描述默认值内容
 * `type`: 输入参数的数据类型(可选项)，默认为`string`
 
 输出(`output`)配置按照[JSON Schema](https://json-schema.org/)规范来定义预期的结构化输出。
