@@ -260,6 +260,15 @@ user
       密钥路径建议加密存储  ← 条件性建议
     ```
 
+尽可能使用简单清晰自然的语言表达可选项的默认值：
+
+```yaml
+max_length 最大长度如果未指定，默认为 100。
+verbose：是否显示详细输出。默认情况下为 False。
+data_path：数据路径，除非另有指定，默认为当前目录。
+file_name：输出文件名。如果未提供，系统将自动生成一个文件名
+```
+
 #### ​**​验证阶段处理逻辑​**​
 
 | 场景 | 处理流程 | 人类可读错误示例 |
@@ -293,7 +302,6 @@ user
 | 建议       | recommended      | ★☆☆ | suggested  |
 | 可选       | optional/may     | ★☆☆ | optional   |
 | 禁止       | forbidden        | ★★★ | prohibited |
-
 
 ```yaml
 # 中文为主配置
