@@ -946,6 +946,7 @@ export:
 `$initializeExec`的参数为
 
 * `data`: 传入`调用者`的args数据对象 或`调用者`的默认args data对象
+  * `_initCaller`属性: 调用者对象, 因为AI脚本传参是对象参数，第二个`caller`参数无法传入,所以需要该属性。
 * `caller`: 调用者对象
 
 注意:

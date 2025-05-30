@@ -950,6 +950,7 @@ The this passed to `$initializeExec` refers to different object depending on the
 The Arguments for `$initializeExec` include:
 
 * `data`: This is the `data` object passed to the `caller`, or the default `data` object of the `caller` if no specific data is provided.
+  * `_initCaller`: The `_initCaller` property is the `caller` object. Since AI script parameters are passed as an object and the second `caller` parameter cannot be directly passed, this property is required to pass the `caller` context.
 * `caller`: This represents the caller object itself.
 
 Notes:
