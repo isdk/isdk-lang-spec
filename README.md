@@ -1026,6 +1026,16 @@ $on:
       * Only available for the `first` and `deep` mode.
     * `answerTag`: Tag for answer content. Used to mark the final answer text (optional).
       * Only available for the `first` and `deep` mode.
+    * `thinkRegex`: Regular expression used to analyze the return content of AI, only valid when thinkTag is a string. (Optional)
+    * `answerRegex`: Regular expression used to analyze the return content of AI, only valid when answerTag is a string. (Optional)
+    * `skipDefaultPrompt`: Whether to force skipping the default thinking prompt. (Optional)
+    * `defaultThinkPrompt`: Replace with your own thinking prompt (invalid when skipDefaultPrompt). (Optional)
+      * `prompt`: Thinking prompt object
+        * `lastHint`: Answer first and then think prompt
+        * `firstHint`: Think first and then answer prompt
+        * `deepHint`: Deep thinking prompt
+        * `roleHint`: Role prompt (optional)
+      * `templateFormat`: Prompt template format(optional)
 * **Purpose**:
   * Control the AI's thinking behavior when processing requests to adapt to different application scenarios and needs.
   * Provide flexible configuration options so developers can adjust AI behavior according to specific requirements.
