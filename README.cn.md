@@ -1033,10 +1033,10 @@ $on:
     * `skipDefaultPrompt`: 是否强制跳过默认的思考提示词。(可选)
     * `defaultThinkPrompt`: 使用自己的思考提示词替换（当skipDefaultPrompt时无效）。(可选)
       * `prompt`: 思考提示词对象
-        * `lastHint`: 先回答再思考提示词
-        * `firstHint`: 先思考再回答提示词
-        * `deepHint`: 深度思考提示词
-        * `roleHint`: 角色提示（可选）
+        * `lastThinkPrompt`: 先回答再思考提示词
+        * `firstThinkPrompt`: 先思考再回答提示词
+        * `deepThinkPrompt`: 深度思考提示词
+        * `rolePrompt`: 角色提示（可选）
       * `templateFormat`: 提示词格式（可选）
 * **目的**:
   * 控制AI在处理请求时的思考行为，以适应不同的应用场景和需求。

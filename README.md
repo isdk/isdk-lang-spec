@@ -1031,10 +1031,10 @@ $on:
     * `skipDefaultPrompt`: Whether to force skipping the default thinking prompt. (Optional)
     * `defaultThinkPrompt`: Replace with your own thinking prompt (invalid when skipDefaultPrompt). (Optional)
       * `prompt`: Thinking prompt object
-        * `lastHint`: Answer first and then think prompt
-        * `firstHint`: Think first and then answer prompt
-        * `deepHint`: Deep thinking prompt
-        * `roleHint`: Role prompt (optional)
+        * `lastThinkPrompt`: Answer first and then think prompt
+        * `firstThinkPrompt`: Think first and then answer prompt
+        * `deepThinkPrompt`: Deep thinking prompt
+        * `rolePrompt`: Role prompt (optional)
       * `templateFormat`: Prompt template format(optional)
 * **Purpose**:
   * Control the AI's thinking behavior when processing requests to adapt to different application scenarios and needs.
