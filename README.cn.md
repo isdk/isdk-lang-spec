@@ -1646,6 +1646,20 @@ $emit:
 * 事件回调中的`event`参数是`Event`对象, `this`为脚本runtime;
 * 当事件回调返回值, 则表示修改参数或结果, 否则不修改;前提是该事件类型支持修改;
 
+### URI 协议约定
+
+#### Pack 协议
+
+用于表示文档型NoSQL知识库资源：`pack://id[?tbl=collection&db=dbName]`
+
+参数:
+
+* `id`: 代表该知识的是唯一标识符;
+* `tbl`: 指定了数据集(collection)的名称。如果未指定该参数，则默认使用当前脚本所在的数据集
+* `db`: 该参数定义了数据库(database)的名称。如果没有明确给出，则会使用当前脚本所在的数据库名称作为默认值。
+
+最简单的形式只包含`id`参数：`pack://my_knowledge_id` 表示访问当前AI脚本的知识库中的`my_knowledge_id`资源。
+
 ## Refs
 
 * [AutoGen](https://github.com/microsoft/autogen)

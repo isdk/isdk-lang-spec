@@ -1639,6 +1639,20 @@ $emit:
 * The `event` parameter in the event callback is the `Event` object, and `this` is the script runtime;
 * When the event callback returns a value, it means modifying the parameter or result, otherwise it is not modified; the premise is that the event type supports modification;
 
+### URI Protocol Convention
+
+#### Pack Protocol
+
+Used to represent document-based NoSQL knowledge base resources: `pack://id[?tbl=collection&db=dbName]`
+
+Parameters:
+
+* `id`: Represents the unique identifier of the knowledge resource.
+* `tbl`:  Specifies the name of the dataset (collection). If this parameter is not specified, the default is to use the dataset where the current script resides.
+* `db`: Defines the name of the database. If not explicitly provided, the default is to use the database name where the current script resides.
+
+The simplest form includes only the `id` parameter: `pack://my_knowledge_id` indicates accessing the `my_knowledge_id` resource in the knowledge base of the current AI script.
+
 ## Refs
 
 * [AutoGen](https://github.com/microsoft/autogen)
