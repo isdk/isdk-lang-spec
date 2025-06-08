@@ -730,7 +730,49 @@ $echo: "The weather in Shanghai is overcast turning partly cloudy, with a temper
 Note：
 
 * This specification uses the `title` configuration in the AI script as a brief description for invoking the tool, and the `input` configuration serves as parameter descriptions.
+  * Becoming a tool requires configuring the `title` or `description` field at least.
 * If the user or parent script disables the tools used by this script, using this script will trigger an exception error `MethodNotAllowed`: `permission denied`.
+
+#### Toolset Configuration
+
+In AI Script, you can organize multiple tools into a single toolset script, such as `myTools.ai.yaml`, by simply defining the `export` field. This approach allows developers to manage and reuse various functions or scripts more efficiently.
+
+Example configuration:
+
+```yaml
+---
+export:
+  - weather.ai.yaml
+  - now.ai.yaml
+  - search.ai.yaml
+---
+# The following code will be executed during initialization($initializeExec) if present
+...
+```
+
+This setup exports three different scripts (`weather.ai.yaml`, `now.ai.yaml`, and `search.ai.yaml`) as part of the same toolset. Each of these scripts represents a reusable tool that can be called from other scripts or modules.
+
+##### Usage
+
+Once your toolset is defined, you can use it just like any other individual tool in your project. Here's how to reference it in another script:
+
+```yaml
+---
+tools:
+  - myTools:
+      # These are optional default parameters that will be applied when the toolset is used.
+      defaults:
+        ...
+---
+```
+
+**Key Points**:
+
+* **Modular Design**: Grouping related tools enhances modularity and simplifies maintenance.
+* **Initialization Behavior**: The script defined in the toolset (e.g., `myTools.ai.yaml`) will automatically be executed as `$initializeExec` when imported, unless explicitly disabled.
+* **Default Parameters Inheritance**: The hierarchical default parameter resolution allows for flexible and maintainable configurations across large AI projects.
+  * **Priority**: Tool default parameters > Toolset default parameters > Toolset Script Object Parameters
+  * The default parameters follows a deep merge strategy.
 
 #### Permission Control
 
