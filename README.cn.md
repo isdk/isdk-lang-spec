@@ -249,6 +249,8 @@ assistant: I am Dobby. Dobby is happy.
 * `description`: 输入参数的描述信息(可选项)
 * `default`: 当作为可选项时，描述默认值内容
 * `type`: 输入参数的数据类型(可选项)，默认为`string`
+* `hidden`: 是否隐藏该工具的输入参数(可选项)，默认为`false`，仅当为可选项或有默认值时生效
+* `hiddenInResult`: 是否在工具返回结果中隐藏该输入参数(可选项)，默认为`false`, 如果`hidden`为`true`，则`hiddenInResult`会自动生效
 
 输出(`output`)配置按照[JSON Schema](https://json-schema.org/)规范来定义预期的结构化输出。
 

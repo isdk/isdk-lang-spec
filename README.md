@@ -240,6 +240,8 @@ When defining the `input` configuration, a list format is used. Each item in the
 * `description`: Description information for the input parameter (optional).
 * `default`:  When used as an optional parameter, describe the default value.
 * `type`: Data type of the input parameter (optional), default is `string`.
+* `hidden`: Determines whether to hide this tool's input parameter (optional). Defaults to `false`. Only takes effect when the parameter is optional or has a default value.
+* `hiddenInResult`: Controls whether to exclude the parameter from the tool's returned results (optional). Defaults to `false`. Note: If `hidden` is `true`, `hiddenInResult` will automatically activate.
 
 The `output` configuration defines the expected structured output according to the [JSON Schema](https://json-schema.org/) standard.
 
