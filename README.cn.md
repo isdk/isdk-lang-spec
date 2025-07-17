@@ -658,7 +658,7 @@ system: |-
 
 基于自然语言的通用智能体自主调用（无需模型专门训练支持`tools`,唯一要求是遵循指令能力要强）。
 
-#### 工具配置
+#### 使用工具
 
 只要在脚本配置中设定允许智能体使用的工具`tools`， 这些工具`tools`对应 AI 脚本ID，智能体就会在需要的时候自主调用这些工具完成任务。使用工具的配置`tools`支持两种格式: 数组或对象
 
@@ -695,6 +695,59 @@ tools:
     title: 以ISO 8601格式获取当前时间
 ---
 ```
+
+工具高级配置项:
+
+* `trigger`: 工具被触发执行的时机，默认为`AI决定`，支持配置多个触发时机。
+  * 选择执行时机：
+    * AI决定（AI/Auto）：由 AI 自主判断何时调用该工具。如果没有设置这个就是默认值。
+    * 每次用户发言后（AfterUserMessage）：每当用户发送一条消息后自动触发, 会传入用户的消息作为参数。设定了这个选项后，`ai`选项将无意义，因为每次都会触发了。
+    * 每次AI回复后（AfterAIResponse）：每当 AI 完成一次回复后自动触发。会传入 AI 的回复作为参数。
+    * 程序开始时（AtStartup）：在程序初始化阶段自动触发。会传入程序的启动参数作为参数。
+    * 程序结束前（BeforeShutdown）：在程序即将终止前触发。
+    * 当包含关键词时（Keyword）：当输入中检测到特定关键词时触发。会传入用户的消息以及匹配的关键词作为参数。
+    * 当记忆改变时（MemoryChanged）：会传入新增或修改的记忆对象`memory`，以及操作名称`operation`(新增，修改，删除)作为参数。
+      * 新增记忆（MemoryAdded）: 传入参数同上，只不过操作名称固定为`新增`
+      * 修改记忆（MemoryUpdated）: 传入参数同上，操作名称固定为`修改`
+      * 删除记忆（MemoryRemoved）: 传入参数同上，操作名称固定为`删除`
+* 增加工具执行策略配置(RunMode/action_mode)：
+  * 并行执行策略： 让LLM尽可能一次性输出多个待执行的工具，让程序可以一次执行多个工具
+  * 串行执行策略： 让LLM一次只输出一个待执行的工具
+  * 执行规划器：由执行规划决定执行策略,感觉并行、串行也是规划的执行策略中一种，相当于预定义的
+    * 级联执行策略: 让LLM 按照任务中对结果的依赖先后顺序，输出待执行的工具
+      * 注意，这个依赖关系是由具体任务而定的，不是工具之间的依赖关系。例子，对当前Top10的品牌电视进行评价，那么首先必须要通过search工具获得前10的品牌名称列表，然后再将列表作为输入，传入工具得到各个品牌的电视信息，再分析。
+  * AI作答并发与后台同时执行工具（可附加在任意执行策略上）
+
+```json
+{
+  "run_mode": {
+    "type": "string",
+    "description": "Defines how the tools are executed.  Choose one: 'parallel', 'serial', 'cascaded'.",
+    "enum": ["parallel", "sequential", "cascaded", "planer"],
+    "default": "sequential"
+  },
+  "concurrency_level": {
+    "type": "integer",
+    "description": "Maximum number of tools to run concurrently when 'action_mode' is 'parallel'.  Set to 1 for single execution.",
+    "default": 5,
+    "minimum": 1,
+    "maximum": 10  // 可以根据系统资源调整上限
+  },
+  "planner": {
+    "type": "string",
+    "description": "The planning algorithm determines how the Action Mode is chosen, and whether cascading is needed.",
+    "enum": ["default", "advanced"], // 例子，可以扩展更多规划算法
+    "default": "default"
+  },
+  "concurrent_answer": {
+    "type": "boolean",
+    "description": "Enable concurrent answer generation while tools are running in the background.",
+    "default": false
+  }
+}
+```
+
+#### 工具脚本
 
 具体Tool脚本示例如下：
 
@@ -766,21 +819,38 @@ tools:
 ```yaml
 ---
 permissions:
-  ai:
+  ai: # 针对 ai 的调用权限（LLM发出的调用）
     call:
-      - "w*"
-      - "now"
+      - "!delete_*" # 禁止所有`delete_`打头的工具函数，匹配规则使用glob模式
+      - "w*"  # 匹配所有w打头的工具函数
+      - read_file: # 只匹配read_file工具函数
+          action: allow
+          parameters: # 参数匹配
+            file_path:
+              - "!/dangerous_directory/*" # 禁止访问 dangerous_directory 下的文件
+              - "/safe_directory/*" # 只有 safe_directory 下的文件才能访问
+  defaultAction: allow|deny|confirm # 如果没有，默认为 confirm
+  overwriteAction: allow|deny|confirm # 如果存在强制所有的call(不包括"!"禁止的，"!"始终有效)
 ---
 ```
 
 权限控制规则
 
-1. **正匹配**：允许AI调用匹配指定模式的工具脚本。例如：
-   - `"weather"`：允许调用`weather`脚本。
-   - `"w*"`：允许调用所有以`w`开头的脚本，如`weather`、`wiki`等。
-2. **负匹配**：禁止AI调用指定工具脚本。负匹配规则需以`!`前缀开头。例如：
-   - `"!search"`：禁止调用`search`脚本。
-3. **优先级**：负匹配规则优先于正匹配规则。
+* 字符串规则为glob规则:
+  1. **正匹配**：允许AI调用匹配指定模式的工具脚本。例如：
+     - `"weather"`：允许调用`weather`脚本。
+     - `"w*"`：允许调用所有以`w`开头的脚本，如`weather`、`wiki`等。
+  2. **负匹配**：禁止AI调用指定工具脚本。负匹配规则需以`!`前缀开头。例如：
+     - `"!search"`：禁止调用`search`脚本。
+  3. **优先级**：负匹配规则优先于正匹配规则。
+* 对象规则支持单字段对象和多字段对象:
+  1. 单字段对象时，字段名为操作名称，字段值为操作参数。`{read_file: {action: 'allow'}}`
+  2. 多字段对象时，必须存在`name`字段，其他字段为操作参数。`{name: 'read_file', action: 'confirm'}`
+  3. 对象的操作名称允许正匹配，但不支持负匹配，负匹配由`action: 'deny'`体现。
+* 字符串规则承载逻辑复杂性，对象规则承载动作扩展性。
+* `overwriteAction` 为了安全，暂时不会实现，等实现非对称加密的签名机制后
+
+注意：这里的权限控制规则是静态的，即权限控制规则在配置文件中定义，并适用于所有用户或上级脚本。
 
 ### 动态调整生成概率：`((!text:bias))` 语法
 
@@ -791,9 +861,9 @@ permissions:
 * 基本格式：`((text:bias))`
   * `text`：需要调整生成概率的目标文本。
   * `bias`：偏置值，可以是以下几种形式：
-    * 数值：直接增加到目标 token 的 logits 上。
-    * 百分比（如 `20%`）：按比例提升或降低生成概率。例如：20% 表示生成概率会按原概率的 1.2 倍计算。
-    * `false`：完全移除该 token 的生成可能性。
+    * **数值**：直接增加到目标 token 的 logits 上。
+    * **百分比**（如 `20%`）：按比例提升或降低生成概率。例如：20% 表示生成概率会按原概率的 1.2 倍计算。
+    * `false|never`：完全移除该 token 的生成可能性。
 * 可选前缀 `!`：
   * 如果存在前缀 `!`，例如 `((!text:bias))`，则表示从提示词中移除该内容，同时应用指定的偏置值。
 
@@ -1644,12 +1714,15 @@ $emit:
 
 #### 内置脚本事件
 
-- `beforeCall`: 在指令调用前触发
-  - 回调参数: `(event, name, params, fn) => void|params`
+- `beforeCall`: 在内部指令调用前触发
+  - 回调参数: `(event, name, args, fn) => void|args`
   - 当回调函数返回值的时候, 则表示修改参数.
-- `afterCall`: 在指令返回结果前触发
-  - 回调参数: `(event, name, params, result, fn) => void|result`
+- `afterCall`: 在内部指令返回结果前触发
+  - 回调参数: `(event, name, args, result, fn) => void|result`
   - 当回调函数返回值的时候, 则表示修改返回结果.
+- `authorizeCall`: 调用**外部脚本**指令（函数）之前触发，用于检查权限
+  - 回调参数: `(event, name, args, fn, interact?) => void|args|boolean`
+  - 如果回调函数返回 `undefined`, `true` 或 `args` (修改后的参数)，则继续调用;返回 `false`，则禁止调用。
 - `llmParams`: 事件在大模型调用前触发,可用于修改传递给大模型的参数.
   - 回调参数: `(event, params: any) => void|result<any>`
 - `llmBefore`: 事件在大模型调用前触发,不可修改参数，仅作为通知.

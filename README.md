@@ -711,18 +711,57 @@ tools:
 
 Advanced Tool Configuration Options
 
-* `trigger`: Specifies one ore more **trigger points** when the tool should be executed. The default is `AI decides`.
-  * Execution timing options.
-  * `AI decides` (default)
-  * `After each user message`
-  * `After each AI response`
-  * `After program startup`
-  * `Before program termination`
-  * `When specific keywords are detected`
-  * `When memory changes occur`
-    * `Memory added`
-    * `Memory modified`
-    * `Memory deleted`
+* `trigger`: This configuration determines when a tool is executed. The default is `AI/Auto` (AI decides when to call the tool), but you can specify multiple custom triggers.
+  * Available Trigger Options:
+    * `AI/Auto`: The AI autonomously decides when to call the tool (default behavior).
+    * `AfterUserMessage`: Automatically triggers the tool after every user message. The user message is passed as a parameter.
+      * Note: The `AI` option becomes irrelevant if this is set.
+    * AfterAIResponse: Automatically triggers the tool after every AI response. The AI's response is passed as a parameter.
+    * AtStartup: Triggers the tool at the program's initialization phase. The startup parameters are passed.
+    * BeforeShutdown: Triggers the tool just before the program terminates.
+    * Keyword: Triggers the tool when specific keywords are detected in the input. The user message and matched keyword are passed.
+    * MemoryChanged: Triggers when memory (context or variables) is modified. It passes the `memory` object and operation type (e.g., `added`, `updated`, `removed`).
+* Execution Strategy Configuration (RunMode / action_mode): This configuration defines how tools are executed when triggered. It allows you to control whether tools are executed in parallel, in sequence, or with a more complex planning-based approach.
+  * Parallel: The LLM is encouraged to output multiple tools at once, enabling the system to execute them in parallel.
+    * Useful for tasks where multiple tools can be applied independently.
+  * Sequential: Forces the LLM to output one tool at a time, and each is executed sequentially.
+  * Planner (Cascaded or Advanced): A planning system determines the execution order based on task dependencies.
+    * Cascaded: Tools are executed in an order dictated by dependencies between their outputs and inputs.
+      * Example: When evaluating top 10 TV brands, first use `search` to get the list, then fetch details for each brand.
+  * Planer: A more advanced planning algorithm determines the execution strategy.
+
+* Additional Execution Options:
+  * Concurrency Level: Limits the maximum number of concurrent tool executions (default: 5, range: 1–10).
+  * Concurrent Answer: Allows the AI to generate a response while tools are running in the background.
+
+```json
+{
+  "run_mode": {
+    "type": "string",
+    "description": "Defines how the tools are executed.  Choose one: 'parallel', 'serial', 'cascaded'.",
+    "enum": ["parallel", "sequential", "cascaded", "planer"],
+    "default": "sequential"
+  },
+  "concurrency_level": {
+    "type": "integer",
+    "description": "Maximum number of tools to run concurrently when 'action_mode' is 'parallel'.  Set to 1 for single execution.",
+    "default": 5,
+    "minimum": 1,
+    "maximum": 10
+  },
+  "planner": {
+    "type": "string",
+    "description": "The planning algorithm determines how the Action Mode is chosen, and whether cascading is needed.",
+    "enum": ["default", "advanced"],
+    "default": "default"
+  },
+  "concurrent_answer": {
+    "type": "boolean",
+    "description": "Enable concurrent answer generation while tools are running in the background.",
+    "default": false
+  }
+}
+```
 
 #### Create Tool Script
 
@@ -801,21 +840,38 @@ Permission control configuration is used to manage the intelligent agent’s acc
 ```yaml
 ---
 permissions:
-  ai:
-    call:
-      - "w*"
-      - "now"
+  ai: # AI Invocation Permissions (LLM-initiated Invocations)
+  call:
+    - "!delete_*" # Blocks all functions starting with "delete_", using glob pattern matching
+    - "w*"  # Allows all functions starting with "w"
+    - read_file: # Specific configuration for the read_file function
+        action: allow
+        parameters: # Parameter-level control
+          file_path:
+            - "!/dangerous_directory/*" # Blocks access to files in dangerous_directory
+            - "/safe_directory/*" # Only allows access to files in safe_directory
+  defaultAction: allow|deny|confirm # Default behavior if no rules match: confirm user
+  overwriteAction: allow|deny|confirm # Override behavior for global rules (note: "!" prohibitions always take precedence)
 ---
 ```
 
 Permission Control Rules:
 
-1. **Positive Matching**: Allows AI to call tool scripts that match specified patterns. For example:
-   * `"weather"`: Allows calling the `weather` script.
-   * `"w*"`: Allows calling all scripts starting with w, such as `weather`, `wiki`, etc.
-2. **Negative Matching**: Prohibits AI from calling specified tool scripts. Negative matching rules must start with the prefix `!`. For example:
-   * `"!search"`: Prohibits calling the `search` script.
-3. **Priority**: Negative matching rules take precedence over positive matching rules.
+* String rules follow glob pattern matching:
+  1. **Positive matching**: Allows AI to call tool scripts that match specified patterns. For example:
+     - `"weather"`: Allows calling the `weather` script.
+     - `"w*"`: Allows calling all scripts starting with "w", such as `weather`, `wiki`, etc.
+  2. **Negative matching**: Prohibits AI from calling specified tool scripts. Negative matching rules must start with the `!` prefix. For example:
+     - `"!search"`: Prohibits calling the `search` script.
+  3. **Priority**: Negative matching rules take precedence over positive matching rules.
+* Object rules support single-field objects and multi-field objects:
+  1. In single-field objects, the field name is the operation name, and the field value is the operation parameter. Example: `{read_file: {action: 'allow'}}`
+  2. In multi-field objects, there must be a `name` field, with other fields being operation parameters. Example: `{name: 'read_file', action: 'confirm'}`
+  3. Operation names in object rules allow positive matching but do not support negative matching; negative matching is indicated by `action: 'deny'`.
+* String rules handle logical complexity, while object rules handle action extensibility.
+* `overwriteAction` will not be implemented temporarily for security reasons, and will be considered after implementing an asymmetric encryption mechanism.
+
+**Note**: The permission control rules described here are static, meaning they are defined in the configuration file and apply to all users or parent scripts.
 
 ### Dynamically Adjusting Generation Probability: ((!text:bias)) Syntax
 
@@ -1658,11 +1714,14 @@ $emit:
 #### Script event type
 
 - `beforeCall`: triggered before the function is called
-- callback parameters: `(event, name, params, fn) => void|params`
-- When the callback function returns a value, it means to modify the parameters.
+  - callback parameters: `(event, name, params, fn) => void|params`
+  - When the callback function returns a value, it means to modify the parameters.
 - `afterCall`: triggered before the function returns the result
-- callback parameters: `(event, name, params, result, fn) => void|result`
-- When the callback function returns a value, it means to modify the return result.
+  - callback parameters: `(event, name, params, result, fn) => void|result`
+  - When the callback function returns a value, it means to modify the return result.
+- `authorizeCall`: Triggered before invoking an external script instruction (function), used to check permissions
+  - Callback parameters: `(event, name, args, fn, interact?) => void|args|boolean`
+  - If the callback returns `undefined`, `true`, or `args` (modified arguments), the invocation proceeds; if it returns `false`, the invocation is blocked.
 - `llmParams`: Triggered before before the LLM is called and can be used to modify the parameters passed to the LLM.
   * Callback: `(event, params: {value: AIMessage[], options?: any, model?: string, count?: number}) => void|result<{value: AIMessage[], options?: any, model?: string, count?: number}>`
   * `value`: The messages to be sent to the LLM.
