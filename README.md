@@ -671,7 +671,7 @@ With these simple settings, one script can inherit code and configurations from 
 
 Universal autonomous invocation of intelligent agents based on natural language (no specialized model training for `tools` required, the only requirement is strong instruction-following capability).
 
-#### Tool Configuration
+#### Using Tools
 
 Simply configure the tools that the intelligent agent is allowed to use in the script configuration under tools. These tools correspond to AI script IDs, and the intelligent agent will autonomously invoke these tools to complete tasks when necessary. The tools configuration supports two formats: `array` or `object`.
 
@@ -708,6 +708,23 @@ tools:
     title: Get the current time in ISO 8601 format
 ---
 ```
+
+Advanced Tool Configuration Options
+
+* `trigger`: Specifies one ore more **trigger points** when the tool should be executed. The default is `AI decides`.
+  * Execution timing options.
+  * `AI decides` (default)
+  * `After each user message`
+  * `After each AI response`
+  * `After program startup`
+  * `Before program termination`
+  * `When specific keywords are detected`
+  * `When memory changes occur`
+    * `Memory added`
+    * `Memory modified`
+    * `Memory deleted`
+
+#### Create Tool Script
 
 Example of a specific tool script:
 
@@ -811,7 +828,7 @@ To enable more precise control over the probability distribution of generated te
   * `bias`: The adjustment value, which can take several forms:
     * **Number**: Directly adds to the logits of the target token.
     * **Percentage** (e.g., 20%): Adjusts the generation probability proportionally. For instance, 20% means the generation probability will increase by 1.2 times the original probability.
-    * `false`: Completely removes the possibility of generating that token.
+    * `false|never`: Completely removes the possibility of generating that token.
 * **Optional Prefix** `!`:
   * If the prefix ! is present, e.g., `((!text:bias))`, it indicates that the specified content should be removed from the prompt while applying the bias adjustment.
 
