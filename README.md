@@ -3,7 +3,7 @@
 > 【English|[中文](./README.cn.md)】
 ---
 
-Programmable Prompt Engineering language is a simple and natural scripting language designed for handling prompt information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand. [This specification](https://github.com/offline-ai/ppe) is implemented in the [offline-ai/cli](https://github.com/offline-ai/cli) project.
+Programmable Prompt Engineering language is a simple and natural scripting language designed for handling prompt context information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand. [This specification](https://github.com/offline-ai/ppe) is implemented in the [offline-ai/cli](https://github.com/offline-ai/cli) project.
 
 - **Promote Reusability and Programmability**: Facilitate the creation of prompts that are modular, reusable, and programmable, akin to software engineering practices.
 - **Simplify Prompt Management**: Standardize the construction of prompt engineering projects for better organization and ease of use.
