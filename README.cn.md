@@ -1,11 +1,15 @@
-# Programmable Prompt Engine Specification(Draft)
+# ISDK Language Specification(Draft)
 
 > 【[English](./README.md)|中文】
 ---
 
-可编程提示词工程语言是一种简单且自然的AI语言，专门用于处理提示词上下文信息。这种语言用于开发各种智能体，这些智能体可以被重用、继承、组合或调用。该语言也可以用于简化大型语言模型 (LLM) 的提示词创建与重用管理工作流程，使这一过程更加高效且易于理解。[本规范](https://github.com/offline-ai/ppe)在 [offline-ai/cli](https://github.com/offline-ai/cli) 项目中实现。
+> ISDK Language：让智能体开发像搭积木一样简单
 
-可编程提示词语言是
+ISDK Language 专为构建与管理 AI 指令(`提示词上下文`)而设计。它将零散的一次性提示转化为结构化、可复用、可继承、可组合、可调用的智能模块（智能体/流程），并以更接近自然语言的语法降低书写与协作成本。
+
+> 名词解释: 在 AI ISDK Language 中，**`提示词上下文`** 本质上是按角色组织的消息序列（结构化对话）。每次推理，ISDK 会依据作用域、优先级与合并规则，将其渲染为 **`Prompt Packet`**（LLM Input）。同时提供显式输入槽位（支持多种模板语法，默认 Jinja2）、输出契约，以及继承与组合能力，便于构建可复用、可维护的智能体与流程。
+
+ISDK 语言是一种简单且自然的AI语言，专门用于处理提示词上下文信息。这种语言用于开发各种智能体，这些智能体可以被重用、继承、组合或调用。该语言也可以用于简化大型语言模型 (LLM) 的提示词上下文创建与重用管理工作流程，使这一过程更加高效且易于理解。~~[本规范](./)在 [offline-ai/cli](https://github.com/offline-ai/cli) 项目中实现。~~
 
 ## 特色功能
 
