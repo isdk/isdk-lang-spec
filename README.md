@@ -9,7 +9,7 @@ ISDK Language is purpose-built for constructing and managing AI instructions(`Pr
 
 > Glossary: In AI ISDK Language, the **`Prompt Context`** is essentially a role-organized sequence of messages (a structured dialogue). On each inference, ISDK applies scoping, priority, and merge rules to render it into a **`Prompt Packet`** (LLM Input). It also provides explicit input slots (supporting multiple templating syntaxes, Jinja2 by default), output contracts, and inheritance/composition to enable reusable and maintainable agents and flows.
 
-ISDK language is a simple and natural scripting language designed for handling prompt context information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand. ~~[This specification](./) is implemented in the [offline-ai/cli](https://github.com/offline-ai/cli) project.~~
+ISDK language is a simple and natural scripting language designed for handling prompt context information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand.
 
 - **Promote Reusability and Programmability**: Facilitate the creation of prompts that are modular, reusable, and programmable, akin to software engineering practices.
 - **Simplify Prompt Management**: Standardize the construction of prompt engineering projects for better organization and ease of use.
@@ -29,33 +29,15 @@ ISDK language is a simple and natural scripting language designed for handling p
 
 Welcome to the streamlined guide for getting started quickly with your AI-powered scripting experience. This guide focuses on making the process of creating and executing interactive scripts more intuitive and straightforward. Let's dive in!
 
-### Reasons for Being Based on YAML
-
-* **Close to Natural Language, Easy for AI to Understand**
-  * The design of YAML syntax closely resembles natural language, reducing the cognitive load on AI when interpreting prompts.
-  * By basing our system on YAML, AI models can more intuitively grasp the meaning of prompts without being confused by overly complex structures.
-* **Clear Semantic Structure Enhances AI Processing Efficiency**
-  * YAML’s hierarchical structure and indentation clearly define relationships between data elements, enabling AI to quickly locate key information.
-  * This structural clarity ensures that AI generates responses or performs tasks more accurately, avoiding unnecessary contextual ambiguity.
-* **The Best Bridge for Human-Machine Collaboration**
-  * For humans, YAML is simple to read and write; for AI, its logical and clear semantics make it an ideal intermediate format.
-  * In prompt engineering, this dual-friendly nature significantly enhances the smoothness and effectiveness of human-AI interaction.
-* **Flexibility and Extensibility**
-  * YAML supports custom tags and allows for flexible adjustments to content based on specific needs.
-  * While rooted in YAML, our system introduces slight modifications to better suit advanced AI workflows.
-* **Built on YAML’s Mature Ecosystem**
-  * By basing our system on YAML, we leverage its widespread adoption and mature toolchain, eliminating the need for additional parsing mechanisms.
-* **Lowers Development Barriers, Focuses on Core AI Functionality**
-  * Building on YAML avoids the complexity of designing a new language from scratch, allowing developers to concentrate on refining AI logic rather than dealing with formatting challenges.
-  * AI benefits directly from YAML’s structured nature, extracting essential information efficiently while maintaining compatibility with existing tools.
-
 ### Structuring Dialogue
 
-Each line represents a conversation turn, attributed to either `system`,`assistant`, `user`, or implied `user` if not stated:
+Each line represents an exchange in the dialogue. The speaker can be specified in the format "role: message", where the role can be `system`, `assistant`, or `user`. If the role is omitted, it defaults to the user speaking.
+
+> 💡 Tip: The **system** role acts as the AI's "identity card," instructing the AI on "who you are" and "what to do," forming the foundation for high-quality conversational experiences.
 
 ```yaml
 system: "You're an AI assistant."
-"What's 10 plus 18?" # which is the user's input
+"What's 10 plus 18?" # this is the user speaking
 # user: "what's 10 plus 18?" # it's the same
 ```
 
@@ -902,9 +884,6 @@ To enable more precise control over the probability distribution of generated te
 * **Avoiding Specific Content**:
   * Example: `((!sensitive_word:false))` completely prohibits the generation of the specified sensitive word.
   * Application: Helps filter out inappropriate or undesirable content.
-* **Dynamically Adjusting Generation Diversity**:
-  * Example: `((creative:50%))` boosts the probability of generating the word "creative" by 50%, encouraging the model to produce more creative content.
-  * Application: Ideal for tasks requiring enhanced diversity in the generated text.
 
 #### Example Code
 
@@ -924,7 +903,7 @@ Notes
 
 * **Moderation Required**: Excessive bias adjustments may overly skew the output toward certain words, affecting the naturalness and diversity of the text.
 * **Context Dependency**: The effect of bias may vary depending on the context. It’s recommended to test and optimize based on specific use cases.
-* **Compatibility**: This syntax currently only works with built-in LLM provider.
+* **Compatibility**: This syntax currently only works with built-in local LLM provider.
 
 By introducing the `((!text:bias))` syntax, we provide a powerful mechanism to fine-tune the output behavior of large language models, meeting the nuanced control requirements of different tasks and needs.
 
