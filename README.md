@@ -3,7 +3,7 @@
 > 【English|[中文](./README.cn.md)】
 ---
 
-> ISDK Language：Make AI agent development as simple as building blocks
+> ISDK Language：The missing programming language for AI engineering.
 
 ISDK Language is purpose-built for constructing and managing AI instructions(`Prompt Context`). It transforms ad-hoc prompts into structured, reusable, inheritable, composable, and callable modules (agents/flows), using a natural-language-like syntax to reduce authoring and collaboration overhead.
 
@@ -139,7 +139,7 @@ Note:
 
 #### Group Chat
 
-The group chat feature enhances PPE's dialogue system with structured natural language, making it easier for multiple agents to collaborate and communicate, thus more efficiently completing complex tasks.
+The group chat feature enhances the dialogue system with structured natural language, making it easier for multiple agents to collaborate and communicate, thus more efficiently completing complex tasks.
 
 This feature supports public dialogue, private chat, and multi-role dialogue, making conversations more flexible and targeted.
 
@@ -562,7 +562,7 @@ user: "Based on the following content: [[/<RESULT>(.+)</RESULT>/:Answer]]"
 
 Within messages, results can be forwarded to other agents.
 
-If no parameters are specified, the AI outcome will be passed as the ~~`result`~~`content` parameter to the agent. For instance,
+If no parameters are specified, the AI outcome will be passed as the `content` parameter to the agent. For instance,
 
 `list-expression.ai.yaml`:
 
@@ -1125,12 +1125,18 @@ $on:
     * `visible`: Whether to display the thought process (optional, default true).
     * `depth`: Maximum depth of thinking (optional).
     * `steps`: Maximum number of thinking steps (optional).
-    * `thinkTag`: Tag for thought content. Used to mark text in the thinking process (optional).
+    * `thinkTag: string|RegExp|[string, string]`: Tag for thought content. Used to mark text in the thinking process (optional).
       * Only available for the `first` and `deep` mode.
-    * `answerTag`: Tag for answer content. Used to mark the final answer text (optional).
+      * If it is an array, it indicates the start and end tags.
+      * If not configured, the default tag is "Think".
+      * RegExp: `/<\|channel\|>analysis<\|message\|>(?<think>.*?)<\|end\|>/s`
+        * The `think` named capture group represents the thinking content. If it is not present, the first capture group is searched for, otherwise it is the entire match content.
+    * `answerTag: string|RegExp|[string, string]`: Tag for answer content. Used to mark the final answer text (optional).
       * Only available for the `first` and `deep` mode.
-    * `thinkRegex`: Regular expression used to analyze the return content of AI, only valid when thinkTag is a string. (Optional)
-    * `answerRegex`: Regular expression used to analyze the return content of AI, only valid when answerTag is a string. (Optional)
+      * If it is an array, it indicates the start and end tags.
+      * If not configured, the default tag is "Answer".
+      * RegExp: `/<\|channel\|>answer<\|message\|>(?<answer>.*?)<\|end\|>/s`
+        * The `answer` named capture group represents the answer content. If it is not present, the first capture group is searched for, otherwise it is the entire match content.
     * `skipDefaultPrompt`: Whether to force skipping the default thinking prompt. (Optional)
     * `defaultThinkPrompt`: Replace with your own thinking prompt (invalid when skipDefaultPrompt). (Optional)
       * `prompt`: Thinking prompt object
