@@ -571,7 +571,7 @@ system: Only list the calculation expression, do not calculate the result
 ---
 user: "Three candies plus five candies."
 assistant: "[[CalcExpression]]"
--> calculator  # The actual input to the agent in this case is: {content: "[AI-generated calculation expression]"}
+-> calculator  # The actual input to the agent in this case is: {content: "[AI-generated calculation expression]"}, the return value is in the LatestResult variable.
 $echo: "#A total of {{LatestResult}} pieces of candy"
 ```
 
@@ -602,7 +602,7 @@ assistant: "[[JOKE]]"
 -> translator(target_lang="Portuguese") -> $print
 ```
 
-**Note**: If the script returns a value of type `string`/`boolean`/`number`, that return value will be placed to the `content` field. If the return value is an `object`, its contents will be directly passed to the agent.
+**Note**: If the script returns a value of type `string`/`boolean`/`number`, that return value will be placed to the `content` field. If the return value is an `object`, its contents will be directly passed to the agent's `LatestResult` variable.
 
 #### Essential Tips
 

@@ -552,7 +552,7 @@ system: "只列出计算表达式, 不要计算结果"
 ---
 user: "三块糖加上5块糖"
 assistant: "[[CalcExpression]]"
--> calculator  # 传入智能体的实际输入参数就是上一次的结果: {content: "[AI生成的计算表达式]"}
+-> calculator  # 传入智能体的实际输入参数就是上一次的结果: {content: "[AI生成的计算表达式]"},返回值在`LatestResult`中
 $echo: "#一共是{{LatestResult}}块糖"
 ```
 
@@ -582,7 +582,7 @@ assistant: "[[JOKE]]"
 -> translator(target_lang="葡萄牙语") -> $print
 ```
 
-**注**: 如果脚本返回值是`string`/`boolean`/`number`,那么都会将该返回值放到`content`字段;如果返回值是`object`,则会直接将对象里的内容传递给智能体.
+**注**: 如果脚本返回值是`string`/`boolean`/`number`,那么都会将该返回值放到结果(`result`)的`content`字段;如果返回值是`object`,则会直接将对象里的内容作为结果(`result`)传递给智能体.
 
 **Tips**:
 
