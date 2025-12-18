@@ -911,9 +911,11 @@ By introducing the `((!text:bias))` syntax, we provide a powerful mechanism to f
 
 ### PPE Script Package
 
-The package name of an intelligent agent script package is the same as the directory name. The root directory of the package must contain a script file with the same name as the directory, which serves as the package entry script.
+The package name of an intelligent agent script package is the same as the directory name. The root directory of the package must contain a script file with the same name as the directory, or `index.ai.yaml`, which serves as the package entry script.
 
 For example, if there is a package directory named `a-dir`, the entry script in that directory should be named `a-dir/a-dir.ai.yaml`.
+
+> 💡 Note: If both files exist in the root directory, the script file with the same name as the directory takes precedence as the entry point, while index.ai.yaml will be ignored.
 
 The functions exported by the package are determined by the `export` configuration in the entry file.
 
