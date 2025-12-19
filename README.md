@@ -778,7 +778,8 @@ Note：
 * This specification uses the `title` configuration in the AI script as a brief description for invoking the tool, and the `input` configuration serves as parameter descriptions.
   * Becoming a tool requires configuring the `title` or `description` field at least.
 * If the user or parent script disables the tools used by this script, using this script will trigger an exception error `MethodNotAllowed`: `permission denied`.
-* Argument `example(s)` configuration can not only represent a single example value but also be an example array, used to show multiple usage examples. It should be noted that if a parameter is set with a `default` value, this `default` value will automatically be inserted into the `examples` list and serve as the first example item for display.
+* `example(s)` configuration can not only represent a single example value but also be an example array, used to show multiple usage examples. It should be noted that if a parameter is set with a `default` value, this `default` value will automatically be inserted into the `examples` list and serve as the first example item for display.
+* The `hidden` indicates whether the parameter should be hidden, with a default value of false. If set to true, the parameter will not appear in the tool call parameter list. Note that when a parameter is set as `required`, the hidden configuration becomes ineffective.
 
 #### Toolset Configuration
 
