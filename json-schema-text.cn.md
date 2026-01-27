@@ -43,19 +43,40 @@ JSON Schema 是给机器验证用的，但人类需要快速理解"这个字段�
 
 ### 字段的基本构成
 
-格式：`* 键名 (标签): 描述 (类型与约束)`
+格式：`* 键名 (标签): Title. Description (类型与约束)`
 
 * **键名**：始终用双引号包裹 `"key"`。
-* **描述**：紧跟冒号后，优先展示。
+* **Title (技术名称)**：可选。作为简短标识。与描述之间用句号 `.` 分隔。
+* **Description (描述)**：详细说明。
+  * **去重规则**：如果描述文本中已包含 Title（不区分大小写），则省略 Title，只展示 Description。
 * **类型**：放在行尾括号内。
   * **String (默认)**：若无约束且非 Nullable，**完全隐藏类型标记**。
   * **非 String**：必须标记，如 `(integer)`, `(boolean)`。
 
 **对比示例**：
 
+```json
+{
+  "type": "object",
+  "properties": {
+    "uuid": { "type": "string", "title": "UUID", "description": "用户唯一标识" },
+    "user": { "type": "object", "description": "The User Object", "title": "User" },
+    "username": { "type": "string", "title": "用户名" },
+    "age": { "type": "integer", "description": "年龄" },
+    "count": { "type": "integer", "description": "数量 integer" },
+    "isEnabled": { "type": "boolean", "description": "是否启用" }
+  }
+}
+```
+
+输出:
+
 ```md
+* "uuid": UUID. 用户唯一标识             <-- Title + Description
+* "user": The User Object              <-- Description 包含 Title ("User")，省略 Title
 * "username": 用户名                    <-- String, 简洁
-* "age": 年龄 (integer)                 <-- Integer, 显式
+* "age": 年龄 (integer)                 <-- 无 Title，仅 Description
+* "count": 数量 integer                 <-- Integer, 描述已包含类型名，隐藏 (integer)
 * "isEnabled": 是否启用 (boolean)        <-- Boolean, 显式
 ```
 
@@ -84,14 +105,14 @@ description > title > (无描述)
 
 ### 转换规则
 
-字符串不标类型，非字符串必须标类型：
+字符串不标类型，非字符串标类型：
 
-| 类型 | 有描述 | 无描述 |
-|------|--------|--------|
-| string | `* "name": 用户名` | `* "name"` |
-| integer | `* "age": 年龄 (integer)` | `* "age" (integer)` |
-| number | `* "score": 分数 (number)` | `* "score" (number)` |
-| boolean | `* "active": 是否激活 (boolean)` | `* "active" (boolean)` |
+| 类型 | 有描述 | 描述包含类型名 | 无描述 |
+|------|--------|---------------|--------|
+| string | `* "name": 用户名` | `* "name": 字符名` | `* "name"` |
+| integer | `* "age": 年龄 (integer)` | `* "age": 年龄 integer` | `* "age" (integer)` |
+| number | `* "score": 分数 (number)` | `* "score": 分数 number` | `* "score" (number)` |
+| boolean | `* "active": 是否激活 (boolean)` | `* "active": boolean开关` | `* "active" (boolean)` |
 
 ### format 处理
 
@@ -268,7 +289,7 @@ The list of 坐标集合, each is a 单个坐标:
 | 约束 | 输出 |
 |------|------|
 | `enum: ["a", "b"]` | `(enum: "a", "b")` |
-| `enum` > 5 项 | `(enum: "a", "b", "c", ... +4 more)` |
+| `enum` > 6 项 | `(enum: "a", "b", "c", ... +4 more)` |
 | `const: "x"` | `(const: "x")` |
 | `pattern: "^[A-Z]+$"` | `(pattern: /^[A-Z]+$/)` |
 | `minLength: 6, maxLength: 6` | `(6 chars)` |
@@ -278,8 +299,8 @@ The list of 坐标集合, each is a 单个坐标:
 
 为了避免枚举刷屏，对枚举 (Enum) 折叠:
 
-* **≤ 5 项**：全列出 `(enum: "A", "B")`
-* **> 5 项**：前 3 项 + 剩余数 `(enum: "CN", "US", "JP", ... +190 others)`
+* **≤ 6 项**：全列出 `(enum: "A", "B")`
+* **> 6 项**：前 3 项 + 剩余数 `(enum: "CN", "US", "JP", ... +190 more)`
 
 ### 数值约束
 
@@ -331,7 +352,7 @@ The list of 坐标集合, each is a 单个坐标:
 }
 ```
 
-**摘要**：取各选项的描述（或 format，或 type）生成：
+**摘要**：优先取各选项的 Title，若无则取描述（或 format，或 type）生成：
 
 ```
 (one of: 错误信息 | 详细错误)
@@ -482,7 +503,7 @@ The list of 坐标集合, each is a 单个坐标:
 
 ```
 * {/^x-/}: 扩展字段
-* {/^data_\d+$/} (object)
+* {/^data_\d+$/}: (object)
 ```
 
 ### additionalProperties
@@ -734,28 +755,32 @@ You are a JSON Schema documentation generator. Convert schemas into concise, hum
    - Before outputting an object, count its required properties.
    - If >50% are required: Label parent `(fields required by default)` and only mark `(optional)` children.
    - If <=50% are required: Label parent `(fields optional by default)` and only mark `(required)` children.
-2. **Type Simplification**:
+2. **Title & Description**:
+   - **Format**: `Title. Description`.
+   - **Deduplication**: If `Description` contains `Title` (case-insensitive), omit `Title`.
+   - **Summary**: In `oneOf`/`anyOf` summaries, strictly prioritize `Title` over `Description`.
+3. **Type Simplification**:
    - **String**: If type is `string` and NOT nullable, hide the type label. Just show the description.
    - **Nullable**: If `type: ["x", "null"]`, explicitly label as `(nullable)`.
    - **Mixed**: If multiple types (e.g., string/int), write `(string | integer)`.
-3. **Combinations**:
+4. **Combinations**:
    - `oneOf` → `(one of: A | B)` - exactly one must match
    - `anyOf` → `(any of: A | B)` - at least one must match
    - `allOf` → Merge schemas first, then render as single object
-4. **Formatting Constraints (Shorthand)**:
-   - **Enums**: If >5 items, list top 3 and add `... +N others`.
+5. **Formatting Constraints (Shorthand)**:
+   - **Enums**: If >6 items, list top 3 and add `... +N others`.
    - **Arrays**: Format as `Description (list of ItemDescription)`.
    - **Numbers**: Use shorthand `(min N)`, `(max N)`, `(> N)`.
    - **Strings**: Use shorthand `(max N chars)`, `(email)`, `(uuid)`, `(datetime)`.
    - **Refs**: If `$ref` is found, resolve it if possible, otherwise write `(see DefinitionName)`.
-5. **Dynamic Properties**:
+6. **Dynamic Properties**:
    - `patternProperties` → `* {/regex/}: Description`
    - `additionalProperties: schema` → `* ...: Description`
-6. **Arrays**:
+7. **Arrays**:
    - Property: `* "items": Description (list of type)`
    - Root: `The list of <ArrayDescription>, each is a <ItemDescription>:`
    - Complex items → Expand nested structure
-7. **References**:
+8. **References**:
    - Resolvable `$ref` → Expand inline
    - Unresolvable → `(see: #/path/to/def)`
    - Circular → `(circular: #/path)`
