@@ -219,18 +219,20 @@ description > title > (无描述)
 
 ### 根数组
 
+格式：`The list of {项身份} ({数组描述与约束})[, {额外说明}]:`
+
 ```json
 {
   "type": "array",
   "description": "用户列表",
-  "items": { "type": "object", "description": "用户对象", "properties": {...} }
+  "items": { "type": "object", "title": "用户对象", "properties": {...} }
 }
 ```
 
 输出：
 
 ```
-The list of 用户列表, each is a 用户对象:
+The list of 用户对象 (用户列表):
   * "name": 用户名
   * "age" (integer)
 ```
@@ -239,25 +241,27 @@ The list of 用户列表, each is a 用户对象:
 
 ```
 { "type": "array", "description": "标签", "items": { "type": "string" } }
-→ The list of 标签
+→ The list of strings (标签).
 
-{ "type": "array", "description": "分数", "items": { "type": "number" } }
-→ The list of 分数, each is a number
+{ "type": "array", "description": "分数", "items": { "type": "number", "description": "必须为正数" } }
+→ The list of numbers (分数), each is described as 必须为正数.
 ```
 
 ### 属性中的数组
 
+格式：`* "key": list of {项身份} ({数组描述与约束})[, {额外说明}]`
+
 ```
-* "tags": 标签列表 (list)
-* "scores": 分数列表 (list of number)
-* "friends": 好友列表 (list of object)
+* "tags": list of strings (标签列表)
+* "scores": list of numbers (分数列表)
+* "friends": list of 用户对象 (好友列表):
   * "name": 好友名
   * "since": 认识年份 (integer)
 ```
 
 ### 嵌套数组
 
-用 `-` 标记数组元素：
+用 `-` 标记数组元素，并保持一致的摘要格式：
 
 ```json
 {
@@ -274,8 +278,8 @@ The list of 用户列表, each is a 用户对象:
 输出：
 
 ```
-The list of 坐标集合, each is a 单个坐标:
-  - list of number
+The list of arrays (坐标集合):
+  - list of numbers (单个坐标)
 ```
 
 ---
@@ -777,8 +781,9 @@ You are a JSON Schema documentation generator. Convert schemas into concise, hum
    - `patternProperties` → `* {/regex/}: Description`
    - `additionalProperties: schema` → `* ...: Description`
 7. **Arrays**:
-   - Property: `* "items": Description (list of type)`
-   - Root: `The list of <ArrayDescription>, each is a <ItemDescription>:`
+   - Property: `* "key": list of {ItemLabel} ({ArrayDescription}, {Constraints})`
+   - Root: `The list of {ItemLabel} ({ArrayDescription}, {Constraints})`
+   - If array or item has a long description (sentence), append it after a comma: `, Each is described as...`
    - Complex items → Expand nested structure
 8. **References**:
    - Resolvable `$ref` → Expand inline
