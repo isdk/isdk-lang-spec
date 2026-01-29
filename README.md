@@ -3,7 +3,7 @@
 > 【English|[中文](./README.cn.md)】
 ---
 
-> ISDK Language：The missing programming language for AI engineering.
+> **ISDK** (**Intelligent Structure Definition of Knowledge**): The missing programming language for AI engineering.
 
 ISDK Language is purpose-built for constructing and managing AI instructions(`Prompt Context`). It transforms ad-hoc prompts into structured, reusable, inheritable, composable, and callable modules (agents/flows), using a natural-language-like syntax to reduce authoring and collaboration overhead.
 
