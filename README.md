@@ -17,13 +17,13 @@ ISDK language is a simple and natural scripting language designed for handling p
 - **User-Friendly Design**: Enable application developers to use prompt engineering projects as they would any other code library, without requiring deep knowledge of AI internals.
 - **Evolve the Role of Prompt Engineers**: Shift the focus of prompt engineers towards developing versatile, model-agnostic scripts to foster wider adoption and innovation.
 - AI Language Layer Structure: Clearly defined and customizable prompt type
-  * Function: `lib` type, each AI file acts as a function, available for other prompts or code to call, for example, text file read `file()`, fetch URL `url()` are all function prompts
+  * Function: `function` type, each AI file acts as a function, available for other prompts or code to call, for example, text file read `file()`, fetch URL `url()` are all function prompts
     * This allows referencing in messages with `@a specific prompt`, used to call a particular input/output agreed prompt function, such as `@file(...)`, `@url(https://...)`
   * Class: Each AI file acts as an inheritable class, overriding configurations and code inheritance
     * Type: `type` type, used for customizing prompt scripts of specific types
     * You can also use prompts to define other types
-    * Character: Character type, prompt scripts with specific role positioning, "character type" itself is also a prompt script
-  * Application: Consists of multiple AI files within a directory, with the main entry AI file's `basename` matching the directory name. For example, the main entry AI file for the `guide` directory is named `guide.ai.yaml`.
+    * `char`: builtin character type, prompt scripts with specific role positioning, "character type" itself is also a prompt script
+  * Application or Library: Consists of multiple AI files within a project directory, with the main entry AI file's `basename` matching the project directory name. For example, the main entry AI file for the `guide` directory is named `guide.ai.yaml` or `index.ai.yaml`.
 
 ## Quick Start
 
