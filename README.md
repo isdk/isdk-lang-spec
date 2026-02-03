@@ -701,6 +701,7 @@ tools:
 
 Advanced Tool Configuration Options
 
+* Dynamic routing of tools: When the tool name starts with `$`, this name will be used as a dynamic route and will be invoked as a command at runtime, which should return a list of tools.
 * `trigger`: This configuration determines when a tool is executed. The default is `AI/Auto` (AI decides when to call the tool), but you can specify multiple custom triggers.
   * Available Trigger Options:
     * `AI/Auto`: The AI autonomously decides when to call the tool (default behavior).
