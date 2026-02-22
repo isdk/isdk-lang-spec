@@ -7,7 +7,7 @@
 
 ISDK Language is purpose-built for constructing and managing AI instructions(`Prompt Context`). It transforms ad-hoc prompts into structured, reusable, inheritable, composable, and callable modules (agents/flows), using a natural-language-like syntax to reduce authoring and collaboration overhead.
 
-> Glossary: In AI ISDK Language, the **`Prompt Context`** is essentially a role-organized sequence of messages (a structured dialogue). On each inference, ISDK applies scoping, priority, and merge rules to render it into a **`Prompt Packet`** (LLM Input). It also provides explicit input slots (supporting multiple templating syntaxes, Jinja2 by default), output contracts, and inheritance/composition to enable reusable and maintainable agents and flows.
+> Glossary: In AI ISDK Language, the **`Prompt Context`** is essentially a role-organized sequence of messages (a structured dialogue). On each inference, ISDK applies scoping, priority, and merge rules to render it into a **`Prompt Packet`** (LLM Input) which can be called **Just-in-Time Context (JIT Context)**. It also provides explicit input slots (supporting multiple templating syntaxes, Jinja2 by default), output contracts, and inheritance/composition to enable reusable and maintainable agents and flows.
 
 ISDK language is a simple and natural scripting language designed for handling prompt context information. This language is used to develop various agents that can be reused, inherited, combined, or called. The language also simplifies the workflow for creating and managing prompts in Large Language Models (LLMs), making the process more efficient and easier to understand.
 
