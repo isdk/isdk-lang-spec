@@ -611,6 +611,8 @@ assistant: "[[JOKE]]"
 
 #### Essential Tips
 
+* **Parameter passing**: The result from the previous step will be automatically passed in as the `content` field of `result`, and you can specify values for additional parameters, such as `target_lang="Portuguese"`, with parameters separated by commas.
+  * Special `flag` parameter: `!as="<VAR>"` indicates storing the return value of the function into the specified variable `<VAR>`.
 * Script Return Value: The script's final command's output determines its return value.
 * Auto-Execution: Scripts ending with prompts but no explicit `$AI` call or the last prompt's message is user message, it will automatically execute `$AI` at the end, configurable via `autoRunLLMIfPromptAvailable`.
 * Output Mode: Scripts default to streaming output, can disable it using the `--no-stream` switch

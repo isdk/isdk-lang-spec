@@ -589,7 +589,7 @@ user: "{{content}}"
 ```yaml
 user: "讲个笑话吧！"
 assistant: "[[JOKE]]"
-# 传入智能体的实际输入参数是: {content: "[这里是由AI生成的笑话]", target_lang: "葡萄牙语"}
+# 传入的实际输入参数是: {content: "[这里是由AI生成的笑话]", target_lang: "葡萄牙语"}
 -> translator(target_lang="葡萄牙语") -> $print
 ```
 
@@ -597,6 +597,8 @@ assistant: "[[JOKE]]"
 
 **Tips**:
 
+* **传参**: 上一次的结果会被放在`result`的`content`字段中自动传入, 你可以指定附加参数的值，如`target_lang="葡萄牙语"`,参数之间用逗号隔开。
+  * flag 特殊参数: `!as="<VAR>"` 表示将该函数的返回值存放到指定的变量`<VAR>`中
 * **脚本返回值**：脚本执行的最后一条指令的返回值,为脚本的返回值
 * **自动执行AI**：当脚本中存在提示消息并且一直到脚本结束也没有执行调用过`$AI`或者提示消息的最后一条是user消息,那么脚本会自动在结束时执行一次`$AI`调用, 此行为可通过`autoRunLLMIfPromptAvailable`配置
 * **输出模式**：脚本默认采用流式输出，可使用`--no-stream` 开关禁用流式输出
